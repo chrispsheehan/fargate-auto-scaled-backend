@@ -31,9 +31,8 @@ data "aws_iam_policy_document" "assume_role" {
 data "aws_iam_policy_document" "ecr_policy" {
   statement {
     actions = [
-      "ecr:GetAuthorizationToken",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage"
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
     ]
 
     effect = "Allow"
