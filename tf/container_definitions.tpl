@@ -23,6 +23,14 @@
             "start_period": 60,
             "timeout": 5
         },
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "/ecs/my-app",
+                "awslogs-region": "${aws_region}",
+                "awslogs-stream-prefix": "ecs"
+            }
+        }
         "essential": true,
         "environment": [],
         "environmentFiles": [],

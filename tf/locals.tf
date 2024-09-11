@@ -7,5 +7,6 @@ locals {
     container_port = var.container_port
     cpu            = var.cpu
     memory         = var.memory
+    aws_region     = var.region
   })
 }
