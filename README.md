@@ -6,7 +6,7 @@ New image pushed to ecr upon changes detected in `/src` and subsequently deploye
 
 ```sh
 docker build -t express-app .
-docker run -p 3000:3000 express-app
+docker run -i -p 3000:3000 express-app
 ```
 
 ## terraform
