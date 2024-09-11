@@ -18,31 +18,45 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.get-latest-tag.outputs.LASTEST_TAG }}
     steps:
       - uses: actions/checkout@v4
         with:
             fetch-depth: 0
 
-      - name: Build and push image
+      - name: Build and push detected changes
         uses: ./.github/actions/build_image
         with:
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     site_url: ${{ steps.action.outputs.SITE_URL }}
-  #   steps:
-  #     - uses: actions/checkout@v4
+      - name: Get lastest tag
+        id: get-latest-tag
+        shell: bash
+        run: |
+          LASTEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
+          echo Latest tag: $LASTEST_TAG
+          echo "LASTEST_TAG=$LASTEST_TAG" >> $GITHUB_OUTPUT
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #           aws-region: ${{ env.aws_region }}
-  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-  #           role-session-name: GitHubActions
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # outputs:
+    #   site_url: ${{ steps.action.outputs.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: output
+        shell: bash
+        run: echo sasasas ${{ needs.build.outputs.latest_tag }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            aws-region: ${{ env.aws_region }}
+            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+            role-session-name: GitHubActions
 
   #     - name: Init
   #       shell: bash
