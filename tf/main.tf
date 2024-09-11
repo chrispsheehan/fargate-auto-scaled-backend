@@ -176,6 +176,11 @@ resource "aws_lb_listener" "listener" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "ecs_log_group" {
+  name              = "/ecs/my-app"
+  retention_in_days = 1
+}
+
 # resource "aws_appautoscaling_target" "ecs" {
 #   max_capacity       = var.max_scaled_task_count
 #   min_capacity       = var.max_scaled_task_count

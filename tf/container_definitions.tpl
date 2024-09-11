@@ -26,7 +26,7 @@
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "/ecs/my-app",
+                "awslogs-group": "${cloudwatch_log_name}",
                 "awslogs-region": "${aws_region}",
                 "awslogs-stream-prefix": "ecs"
             }
