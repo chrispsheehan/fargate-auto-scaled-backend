@@ -13,9 +13,6 @@ jobs:
       image_uri: ${{ steps.get-latest-uri.outputs.IMAGE_URI }}
     steps:
       - uses: actions/checkout@v4
-        with:
-            fetch-depth: 0
-
       - name: Build and push detected changes
         uses: ./.github/actions/build_image
         with:
