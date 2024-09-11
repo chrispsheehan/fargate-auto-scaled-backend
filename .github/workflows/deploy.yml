@@ -51,12 +51,12 @@ jobs:
         shell: bash
         run: echo sasasas ${{ needs.build.outputs.latest_tag }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            aws-region: ${{ env.aws_region }}
-            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-            role-session-name: GitHubActions
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #       aws-region: ${{ env.aws_region }}
+      #       role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+      #       role-session-name: GitHubActions
 
   #     - name: Init
   #       shell: bash
