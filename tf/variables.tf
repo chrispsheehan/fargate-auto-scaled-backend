@@ -13,25 +13,25 @@ variable "initial_task_count" {
   }
 }
 
-variable "min_scaled_task_count" {
-  description = "minimum number of tasks to be running during auto-scaling"
-  default     = 2
+# variable "min_scaled_task_count" {
+#   description = "minimum number of tasks to be running during auto-scaling"
+#   default     = 2
 
-  validation {
-    condition     = var.min_scaled_task_count >= var.initial_task_count
-    error_message = "The var.min_scaled_task_count must at least equal var.initial_task_count"
-  }
-}
+#   validation {
+#     condition     = var.min_scaled_task_count >= var.initial_task_count
+#     error_message = "The var.min_scaled_task_count must at least equal var.initial_task_count"
+#   }
+# }
 
-variable "max_scaled_task_count" {
-  description = "maximum number of tasks to be running during auto-scaling"
-  default     = 3
+# variable "max_scaled_task_count" {
+#   description = "maximum number of tasks to be running during auto-scaling"
+#   default     = 3
 
-  validation {
-    condition     = var.max_scaled_task_count > var.min_scaled_task_count
-    error_message = "The var.max_scaled_task_count must at least equal var.min_scaled_task_count"
-  }
-}
+#   validation {
+#     condition     = var.max_scaled_task_count > var.min_scaled_task_count
+#     error_message = "The var.max_scaled_task_count must at least equal var.min_scaled_task_count"
+#   }
+# }
 
 variable "max_az" {
   description = "limit the amount of azs"

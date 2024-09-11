@@ -92,8 +92,13 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "ecs_log_group" {
+  name              = local.cloudwatch_log_name
+  retention_in_days = 1
+}
+
 resource "aws_ecs_service" "ecs" {
-  depends_on = [aws_lb.lb]
+  depends_on = [aws_lb.lb, aws_cloudwatch_log_group.ecs_log_group]
 
   name                  = var.project_name
   launch_type           = "FARGATE"
@@ -174,11 +179,6 @@ resource "aws_lb_listener" "listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg.arn
   }
-}
-
-resource "aws_cloudwatch_log_group" "ecs_log_group" {
-  name              = "/ecs/my-app"
-  retention_in_days = 1
 }
 
 # resource "aws_appautoscaling_target" "ecs" {
