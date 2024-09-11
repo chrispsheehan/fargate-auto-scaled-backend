@@ -43,9 +43,9 @@ variable "project_name" {
   default = "fargate-nextjs-webapp"
 }
 
-variable "image_tag" {
-  type    = string
-  default = "latest"
+variable "image_uri" {
+  type        = string
+  description = "docker.io/<dockerhub_username>/<repo_name>:<tag>"
 }
 
 variable "cpu" {

@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      latest_tag: ${{ steps.get-latest-tag.outputs.LASTEST_TAG }}
+      image_uri: ${{ steps.get-latest-tag.outputs.IMAGE_URI }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,8 +27,9 @@ jobs:
         shell: bash
         run: |
           LASTEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
-          echo Latest tag: $LASTEST_TAG
-          echo "LASTEST_TAG=$LASTEST_TAG" >> $GITHUB_OUTPUT
+          IMAGE_URI="docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:$LATEST_TAG"
+          echo "Latest image URI: $IMAGE_URI"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
 
   deploy:
     needs: build
@@ -61,7 +62,7 @@ jobs:
         id: deploy
         env:
           TF_VAR_project_name: ${{ github.event.repository.name }}
-          TF_VAR_image_tag: ${{ needs.build.outputs.latest_tag }}
+          TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
         run: |
             cd tf
             terraform apply -auto-approve
