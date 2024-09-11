@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# env:
+#   aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+#   aws_region: ${{ vars.AWS_REGION }}
+#   aws_role: ${{ vars.AWS_ROLE }}
+
+# permissions:
+#   id-token: write
+#   contents: read
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
+      - name: Build and push image
+        uses: ./.github/actions/build_image
+        with:
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     site_url: ${{ steps.action.outputs.SITE_URL }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #           aws-region: ${{ env.aws_region }}
+  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+  #           role-session-name: GitHubActions
+
+  #     - name: Init
+  #       shell: bash
+  #       run: |
+  #           cd tf
+  #           terraform init
+    
+  #     - name: Action
+  #       shell: bash
+  #       id: action
+  #       run: |
+  #           cd tf
+  #           terraform apply -auto-approve -var project_name=${{ github.event.repository.name }} -var image_tag=$(echo $GITHUB_SHA | cut -c 1-6)
+  #           echo "SITE_URL=$(terraform output -raw service-url)" >> $GITHUB_OUTPUT
+
+  # test:
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     SITE_URL: ${{ needs.deploy.outputs.site_url }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #           fetch-depth: 0
+
+  #     - name: Test
+  #       shell: bash
+  #       run: |
+  #         bash bin/curl-check.sh
