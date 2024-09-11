@@ -4,8 +4,10 @@ New image pushed to ecr upon changes detected in `/src` and subsequently deploye
 
 ## docker
 
+```sh
 docker build -t express-app .
 docker run -p 3000:3000 express-app
+```
 
 ## terraform
 
@@ -19,7 +21,8 @@ Required deployment iam privileges.
     "iam:*", 
     "ecs:*",
     "ec2:*", 
-    "elasticloadbalancing:*"
+    "elasticloadbalancing:*",
+    "application-autoscaling:*"
 ]
 ```
 
