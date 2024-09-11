@@ -27,6 +27,7 @@ jobs:
         shell: bash
         run: |
           LASTEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
+          echo "LASTEST_TAG=$LASTEST_TAG" >> $GITHUB_OUTPUT
           IMAGE_URI="docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:$LATEST_TAG"
           echo "Latest image URI: $IMAGE_URI"
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
