@@ -30,7 +30,7 @@
                 "awslogs-region": "${aws_region}",
                 "awslogs-stream-prefix": "ecs"
             }
-        }
+        },
         "essential": true,
         "environment": [],
         "environmentFiles": [],
