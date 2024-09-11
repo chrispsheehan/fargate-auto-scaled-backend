@@ -19,15 +19,15 @@ jobs:
       - name: Build and push detected changes
         uses: ./.github/actions/build_image
         with:
-          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_username: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Get lastest tag
         id: get-latest-uri
         shell: bash
         run: |
-          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
-          IMAGE_URI="docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:$LATEST_TAG"
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
+          IMAGE_URI="docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:$LATEST_TAG"
           echo "Latest image URI: $IMAGE_URI"
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
 
