@@ -253,7 +253,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
   evaluation_periods        = 2
   metric_name               = "ApproximateNumberOfMessagesVisible"
   namespace                 = "AWS/SQS"
-  period                    = 60
+  period                    = var.auto_scale_cool_down_period
   statistic                 = "Average"
   threshold                 = var.sqs_scale_up_trigger
   alarm_actions             = [aws_appautoscaling_policy.scale_up.arn]
@@ -268,7 +268,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   evaluation_periods        = 2
   metric_name               = "ApproximateNumberOfMessagesVisible"
   namespace                 = "AWS/SQS"
-  period                    = 60
+  period                    = var.auto_scale_cool_down_period
   statistic                 = "Average"
   threshold                 = var.sqs_scale_down_trigger
   alarm_actions             = [aws_appautoscaling_policy.scale_down.arn]

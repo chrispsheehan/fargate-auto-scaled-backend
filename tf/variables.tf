@@ -23,6 +23,11 @@ variable "max_scaled_task_count" {
   }
 }
 
+variable "auto_scale_cool_down_period" {
+  description = "Amount of time to wait between autoscaling actoins"
+  default     = 30
+}
+
 variable "sqs_scale_up_trigger" {
   description = "The average number of SQS messages in the queue required to trigger scale UP"
   default = 4
