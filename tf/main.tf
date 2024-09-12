@@ -127,6 +127,8 @@ resource "aws_ecs_service" "ecs" {
     container_name   = var.project_name
     container_port   = var.container_port
   }
+
+  force_new_deployment = true  # This forces a new deployment on every apply
 }
 
 resource "aws_security_group" "lb_sg" {
