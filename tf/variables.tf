@@ -4,7 +4,7 @@ variable "region" {
 }
 
 variable "initial_task_count" {
-  description = "number of tasks to run on the ECS instance **superceded by auto-scaling**"
+  description = "initial and minimum number of tasks to run on the ECS instance"
   default     = 2
 
   validation {
@@ -13,25 +13,31 @@ variable "initial_task_count" {
   }
 }
 
-# variable "min_scaled_task_count" {
-#   description = "minimum number of tasks to be running during auto-scaling"
-#   default     = 2
+variable "max_scaled_task_count" {
+  description = "maximum number of tasks to be running during auto-scaling"
+  default     = 3
 
-#   validation {
-#     condition     = var.min_scaled_task_count >= var.initial_task_count
-#     error_message = "The var.min_scaled_task_count must at least equal var.initial_task_count"
-#   }
-# }
+  validation {
+    condition     = var.max_scaled_task_count >= 3
+    error_message = "The max_scaled_task_count must be greater than the initial_task_count."
+  }
+}
 
-# variable "max_scaled_task_count" {
-#   description = "maximum number of tasks to be running during auto-scaling"
-#   default     = 3
+variable "auto_scale_cool_down_period" {
+  description = "Amount of time to wait between autoscaling actoins"
+  default     = 30
+}
 
-#   validation {
-#     condition     = var.max_scaled_task_count > var.min_scaled_task_count
-#     error_message = "The var.max_scaled_task_count must at least equal var.min_scaled_task_count"
-#   }
-# }
+variable "sqs_scale_up_trigger" {
+  description = "The average number of SQS messages in the queue required to trigger scale UP"
+  default = 4
+}
+
+variable "sqs_scale_down_trigger" {
+  description = "The average number of SQS messages in the queue required to trigger scale DOWN"
+  default = 2
+}
+
 
 variable "max_az" {
   description = "limit the amount of azs"

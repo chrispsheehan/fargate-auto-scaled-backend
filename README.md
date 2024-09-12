@@ -23,7 +23,9 @@ Required deployment iam privileges.
     "ec2:*", 
     "elasticloadbalancing:*",
     "application-autoscaling:*",
-    "logs:*"
+    "logs:*",
+    "sqs:*",
+    "cloudwatch:*"
 ]
 ```
 
