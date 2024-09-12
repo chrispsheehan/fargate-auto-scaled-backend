@@ -18,9 +18,9 @@
                 "CMD-SHELL", 
                 "wget --quiet --spider --tries=1 http://localhost:${container_port}/health || exit 1"
             ],
-            "interval": 30,
+            "interval": 10,
             "retries": 3,
-            "start_period": 60,
+            "start_period": 10,
             "timeout": 5
         },
         "logConfiguration": {
