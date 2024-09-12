@@ -18,13 +18,11 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/host', (req, res) => {
-    const networkInterfaces = os.networkInterfaces();
-    const ipAddress = networkInterfaces.eth0 ? networkInterfaces.eth0[0].address : 'Unknown IP';
-  
-    res.status(200).json({
-        message: 'Request handled by this container',
-        ipAddress: ipAddress
-    });
+  const hostname = os.hostname();
+  res.status(200).json({
+    message: 'Request handled by this container',
+    hostname: hostname
+  });
 });
 
 console.log(`Listening on http://localhost:${port}`)
