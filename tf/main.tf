@@ -169,15 +169,15 @@ resource "aws_lb_target_group" "tg" {
 
   target_type = "ip"
 
-  health_check {
-    interval            = 30
-    path                = "/health"
-    protocol            = "HTTP"
-    matcher             = "200"
-    timeout             = 5
-    healthy_threshold   = 5
-    unhealthy_threshold = 2
-  }
+  # health_check {
+  #   interval            = 30
+  #   path                = "/health"
+  #   protocol            = "HTTP"
+  #   matcher             = "200"
+  #   timeout             = 5
+  #   healthy_threshold   = 5
+  #   unhealthy_threshold = 2
+  # }
 }
 
 resource "aws_lb_listener" "listener" {
