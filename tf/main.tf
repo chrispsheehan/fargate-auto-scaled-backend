@@ -159,6 +159,8 @@ resource "aws_lb" "lb" {
 
   security_groups = [aws_security_group.lb_sg.id]
   subnets         = aws_subnet.public_subnet[*].id
+
+  enable_cross_zone_load_balancing = true
 }
 
 resource "aws_lb_target_group" "tg" {
