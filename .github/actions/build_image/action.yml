@@ -61,6 +61,6 @@ runs:
       id: set-image-uri
       shell: bash
       run: |
-        IMAGE_URI="docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:$IMAGE_TAG"
+        IMAGE_URI="docker.io/${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG"
         echo "Latest image URI: $IMAGE_URI"
         echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
