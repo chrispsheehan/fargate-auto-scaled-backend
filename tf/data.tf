@@ -37,7 +37,10 @@ data "aws_iam_policy_document" "logs_policy" {
 
     effect = "Allow"
 
-    resources = [aws_cloudwatch_log_group.ecs_log_group.arn]
+    resources = [
+      "${aws_cloudwatch_log_group.ecs_log_group.arn}",
+      "${aws_cloudwatch_log_group.ecs_log_group.arn}:*"
+    ]
   }
 }
 
