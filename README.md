@@ -27,7 +27,6 @@ Required deployment iam privileges.
 ]
 ```
 
-
 ## ci
 
 Commits to `main` will kick off a deployment.

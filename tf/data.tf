@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "ecr_policy" {
+data "aws_iam_policy_document" "logs_policy" {
   statement {
     actions = [
       "logs:CreateLogStream",
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "ecr_policy" {
 
     effect = "Allow"
 
-    resources = ["*"]
+    resources = [aws_cloudwatch_log_group.ecs_log_group.arn]
   }
 }
 

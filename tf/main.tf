@@ -40,9 +40,9 @@ resource "aws_ecs_cluster" "cluster" {
   name = "${var.project_name}-cluster"
 }
 
-resource "aws_iam_policy" "ecr_access_policy" {
+resource "aws_iam_policy" "logs_access_policy" {
   name   = "${local.formatted_name}_ecr_access_policy"
-  policy = data.aws_iam_policy_document.ecr_policy.json
+  policy = data.aws_iam_policy_document.logs_policy.json
 }
 
 resource "aws_iam_role" "ecs_task_role" {
@@ -50,9 +50,9 @@ resource "aws_iam_role" "ecs_task_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecr_access_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "logs_access_policy_attachment" {
   role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.ecr_access_policy.arn
+  policy_arn = aws_iam_policy.logs_access_policy.arn
 }
 
 resource "aws_ecs_task_definition" "task" {
@@ -168,6 +168,16 @@ resource "aws_lb_target_group" "tg" {
   vpc_id   = data.aws_vpc.vpc.id
 
   target_type = "ip"
+
+  health_check {
+    interval            = 30
+    path                = "/health"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = 5
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+  }
 }
 
 resource "aws_lb_listener" "listener" {
