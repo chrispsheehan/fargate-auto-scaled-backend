@@ -31,7 +31,7 @@ resource "aws_apigatewayv2_integration" "this" {
   integration_method = "ANY"
   integration_uri    = var.lb_listener_arn
 
-  payload_format_version = "2.0"
+  payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_route" "this" {
