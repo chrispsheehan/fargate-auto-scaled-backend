@@ -8,6 +8,11 @@ check:
     cd tf
     terraform validate
 
+init:
+    #!/usr/bin/env bash
+    cd tf
+    terraform init
+
 local-deploy:
     #!/usr/bin/env bash
     DOCKERHUB_USERNAME=chrispsheehan
