@@ -15,7 +15,7 @@ module "vpc_link" {
 
   project_name = var.project_name
 
-  target_arn             = module.ecs.lb-arn
+  lb_listener_arn        = module.ecs.lb_listener_arn
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
   private_subnet_ids     = data.aws_subnets.private.ids

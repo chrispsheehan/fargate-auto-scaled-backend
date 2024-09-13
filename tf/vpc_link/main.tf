@@ -29,7 +29,7 @@ resource "aws_apigatewayv2_integration" "this" {
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.this.id
   integration_method = "ANY"
-  integration_uri    = var.target_arn
+  integration_uri    = var.lb_listener_arn
 
   payload_format_version = "2.0"
 }
