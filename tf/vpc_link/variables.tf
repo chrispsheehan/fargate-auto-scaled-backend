@@ -14,7 +14,7 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
-variable "target_domain" {
+variable "target_arn" {
   type        = string
-  description = "domain to forward api calls to i.e. load balancer http://fargate-auto-scaled-backend-lb-311523723.eu-west-2.elb.amazonaws.com"
+  description = "arn to forward api calls to i.e. load balancer"
 }

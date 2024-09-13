@@ -6,6 +6,6 @@ output "service_name" {
   value = aws_ecs_service.ecs.name
 }
 
-output "lb-url" {
-  value = "http://${aws_lb.lb.dns_name}:${var.load_balancer_port}"
+output "lb-arn" {
+  value = aws_lb.lb.arn
 }
