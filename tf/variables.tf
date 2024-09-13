@@ -46,7 +46,7 @@ variable "max_az" {
 
 variable "project_name" {
   type    = string
-  default = "fargate-nextjs-webapp"
+  default = "fargate-auto-scaled-backend"
 }
 
 variable "image_uri" {
