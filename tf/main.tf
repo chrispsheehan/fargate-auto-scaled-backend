@@ -7,7 +7,7 @@ module "ecs" {
   region             = var.region
   initial_task_count = var.initial_task_count
   private_vpc_id     = data.aws_vpc.private.id
-  private_subnet_ids = data.aws_subnets.private.*.id
+  private_subnet_ids = data.aws_subnets.private.ids
 }
 
 module "vpc_link" {
@@ -18,7 +18,7 @@ module "vpc_link" {
   target_domain          = module.ecs.lb-url
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
-  private_subnet_ids     = data.aws_subnets.private.*.id
+  private_subnet_ids     = data.aws_subnets.private.ids
 }
 
 # module "auto_scaling" {
