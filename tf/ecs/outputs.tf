@@ -7,5 +7,5 @@ output "service_name" {
 }
 
 output "lb-url" {
-  value = "${aws_lb.lb.dns_name}:${var.load_balancer_port}"
+  value = "http://${aws_lb.lb.dns_name}:${var.load_balancer_port}"
 }

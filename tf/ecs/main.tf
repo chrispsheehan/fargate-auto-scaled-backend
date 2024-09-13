@@ -1,41 +1,3 @@
-resource "aws_route_table" "rt" {
-  vpc_id = data.aws_vpc.vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = data.aws_internet_gateway.igw.id
-  }
-
-  tags = {
-    Name = "${var.project_name}-rt"
-  }
-}
-
-resource "aws_subnet" "public_subnet" {
-  count = local.az_count
-
-  vpc_id            = data.aws_vpc.vpc.id
-  availability_zone = data.aws_availability_zones.azs.names[count.index]
-  cidr_block        = cidrsubnet(data.aws_vpc.vpc.cidr_block, 8, local.az_count + count.index)
-
-
-  tags = {
-    Name = "${var.project_name}-public-subnet-${count.index}"
-  }
-}
-
-resource "aws_route_table_association" "public_association" {
-  count = local.az_count
-
-  subnet_id      = aws_subnet.public_subnet[count.index].id
-  route_table_id = aws_route_table.rt.id
-}
-
-resource "aws_main_route_table_association" "public_main" {
-  vpc_id         = data.aws_vpc.vpc.id
-  route_table_id = aws_route_table.rt.id
-}
-
 resource "aws_ecs_cluster" "cluster" {
   name = "${var.project_name}-cluster"
 }
@@ -74,7 +36,7 @@ resource "aws_ecs_task_definition" "task" {
 }
 
 resource "aws_security_group" "ecs_sg" {
-  vpc_id = data.aws_vpc.vpc.id
+  vpc_id = var.private_vpc_id
   name   = "${var.project_name}-ecs-sg"
 
   ingress {
@@ -117,9 +79,9 @@ resource "aws_ecs_service" "ecs" {
   }
 
   network_configuration {
-    assign_public_ip = true
+    assign_public_ip = false
     security_groups  = [aws_security_group.ecs_sg.id]
-    subnets          = aws_subnet.public_subnet.*.id
+    subnets          = var.private_subnet_ids
   }
 
   load_balancer {
@@ -132,7 +94,7 @@ resource "aws_ecs_service" "ecs" {
 }
 
 resource "aws_security_group" "lb_sg" {
-  vpc_id = data.aws_vpc.vpc.id
+  vpc_id = var.private_vpc_id
   name   = "${var.project_name}-lb-sg"
 
   ingress {
@@ -158,7 +120,7 @@ resource "aws_lb" "lb" {
   enable_deletion_protection = false
 
   security_groups = [aws_security_group.lb_sg.id]
-  subnets         = aws_subnet.public_subnet[*].id
+  subnets         = var.private_subnet_ids
 
   enable_cross_zone_load_balancing = true
 }
@@ -169,7 +131,7 @@ resource "aws_lb_target_group" "tg" {
   name     = "${var.project_name}-tg"
   port     = var.container_port
   protocol = "HTTP"
-  vpc_id   = data.aws_vpc.vpc.id
+  vpc_id   = var.private_vpc_id
 
   target_type = "ip"
 
@@ -194,5 +156,3 @@ resource "aws_lb_listener" "listener" {
     target_group_arn = aws_lb_target_group.tg.arn
   }
 }
-
-

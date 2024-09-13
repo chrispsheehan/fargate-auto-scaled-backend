@@ -6,11 +6,14 @@ variable "region" {
   type = string
 }
 
-variable "initial_task_count" {
-  type = number
+variable "private_vpc_id" {
+  type = string
+}
+variable "private_subnet_ids" {
+  type = list(string)
 }
 
-variable "max_az" {
+variable "initial_task_count" {
   type = number
 }
 

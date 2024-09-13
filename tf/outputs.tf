@@ -1,3 +1,3 @@
 output "url" {
-  value = module.ecs.lb-url
+  value = module.vpc_link.api_invoke_url
 }
