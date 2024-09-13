@@ -8,6 +8,6 @@ data "aws_vpc" "private" {
 data "aws_subnets" "private" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.private]
+    values = [data.aws_vpc.private.id]
   }
 }
