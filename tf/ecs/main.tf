@@ -114,7 +114,7 @@ resource "aws_security_group" "lb_sg" {
 
 resource "aws_lb" "lb" {
   name               = "${var.project_name}-lb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
 
   enable_deletion_protection = false
