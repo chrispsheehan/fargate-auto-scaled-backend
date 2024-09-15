@@ -12,7 +12,7 @@ terraform {
     key            = "ecr-state/terraform.tfstate"
     region         = "eu-west-2"
     encrypt        = true
-    dynamodb_table = "chrispsheehan-fargate-auto-scaled-backend-ecr-tf-lockid"
+    dynamodb_table = "chrispsheehan-fargate-auto-scaled-backend-tf-lockid"
   }
 }
 
