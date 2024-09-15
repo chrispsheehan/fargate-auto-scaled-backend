@@ -2,11 +2,14 @@ name: Build and push image to DockerHub
 description: Pushes a Docker image to DockerHub when changes are detected in the source code.
 
 inputs:
-  dockerhub_username:
-    description: 'DockerHub Username'
+  aws_acccount_id:
+    description: 'ECR aws account id'
     required: true
-  dockerhub_password:
-    description: 'DockerHub Password or Token'
+  aws_region:
+    description: 'ECR aws region'
+    required: true
+  ecr_repositry_name:
+    description: 'ECR repository name'
     required: true
 
 outputs:
@@ -42,20 +45,20 @@ runs:
       shell: bash
       run: |
         docker build . -t $LOCAL_IMAGE
-        docker tag $LOCAL_IMAGE ${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG
+        docker tag $LOCAL_IMAGE ${{ inputs.aws_acccount_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
 
     - if: steps.changes.outputs.src == 'true'
-      name: Push Docker Image to DockerHub
+      name: Push Docker Image to ECR
       shell: bash
       run: |
-        echo "${{ inputs.dockerhub_password }}" | docker login --username "${{ inputs.dockerhub_username }}" --password-stdin
-        docker push ${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG
+        aws ecr get-login-password --region ${{ env.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
+        docker push ${{ inputs.aws_acccount_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
 
     - if: steps.changes.outputs.src != 'true'
-      name: Obtain latest tag from dockerhub
+      name: Obtain latest tag from ecr
       shell: bash
       run: |
-        IMAGE_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
+        IMAGE_TAG==$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Set Image URI
