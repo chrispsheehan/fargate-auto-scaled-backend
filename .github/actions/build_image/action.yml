@@ -2,14 +2,11 @@ name: Build and push image to DockerHub
 description: Pushes a Docker image to DockerHub when changes are detected in the source code.
 
 inputs:
-  aws_acccount_id:
+  aws_account_id:
     description: 'ECR aws account id'
     required: true
   aws_region:
     description: 'ECR aws region'
-    required: true
-  ecr_repositry_name:
-    description: 'ECR repository name'
     required: true
 
 outputs:
