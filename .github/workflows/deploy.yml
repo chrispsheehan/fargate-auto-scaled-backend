@@ -66,6 +66,8 @@ jobs:
         uses: ./.github/actions/build_image
         with:
           ecr_repositry_name: ${{ needs.deploy-ecr.outputs.ecr_repositry_name }}
+          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+          aws_region: ${{ vars.AWS_REGION }}
 
   # deploy:
   #   needs: build
