@@ -3,8 +3,13 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_iam_policy" "logs_access_policy" {
-  name   = "${local.formatted_name}_ecr_access_policy"
+  name   = "${local.formatted_name}_logs_access_policy"
   policy = data.aws_iam_policy_document.logs_policy.json
+}
+
+resource "aws_iam_policy" "ecr_access_policy" {
+  name   = "${local.formatted_name}_ecr_access_policy"
+  policy = data.aws_iam_policy_document.ecr_policy
 }
 
 resource "aws_iam_role" "ecs_task_role" {

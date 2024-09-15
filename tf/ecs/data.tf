@@ -28,3 +28,17 @@ data "aws_iam_policy_document" "logs_policy" {
     ]
   }
 }
+
+data "aws_iam_policy_document" "ecr_policy" {
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage"
+    ]
+
+    effect = "Allow"
+
+    resources = ["*"]
+  }
+}
