@@ -44,7 +44,7 @@ jobs:
         run: |
             cd tf-ecr
             terraform apply -auto-approve
-            ECR_REPOSITRY_NAME=$(terragrunt output -raw ecr_repositry_name)
+            ECR_REPOSITRY_NAME=$(terraform output -raw ecr_repositry_name)
 
   build:
     needs: deploy-ecr
