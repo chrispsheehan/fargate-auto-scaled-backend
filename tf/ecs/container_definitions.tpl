@@ -26,9 +26,9 @@
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "/${cloudwatch_log_name}",
+                "awslogs-group": "${cloudwatch_log_name}",
                 "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "${cloudwatch_log_name}"
+                "awslogs-stream-prefix": "ecs"
             }
         },
         "essential": true,
