@@ -21,7 +21,7 @@ local-deploy:
     aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
     IMAGE_TAG=$(aws ecr describe-images --repository-name $REPONAME --region "$AWS_REGION" --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
     IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPONAME:$IMAGE_TAG"
-    echo $IMAGE_URI
+    export TF_VAR_image_uri=$IMAGE_URI
     cd tf
     terraform init
     terraform apply
