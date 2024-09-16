@@ -79,18 +79,18 @@ jobs:
             role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
             role-session-name: GitHubActions
 
-      - name: Init
-        shell: bash
-        run: |
-            cd tf
-            terraform init
+      # - name: Init
+      #   shell: bash
+      #   run: |
+      #       cd tf
+      #       terraform init
     
-      - name: Deploy
-        shell: bash
-        id: deploy
-        env:
-          TF_VAR_project_name: ${{ github.event.repository.name }}
-          TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
-        run: |
-            cd tf
-            terraform apply -auto-approve
+      # - name: Deploy
+      #   shell: bash
+      #   id: deploy
+      #   env:
+      #     TF_VAR_project_name: ${{ github.event.repository.name }}
+      #     TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
+      #   run: |
+      #       cd tf
+      #       terraform apply -auto-approve
