@@ -1,3 +1,15 @@
+resource "aws_flow_log" "vpc_flow_log" {
+  log_destination      = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  log_destination_type = "cloud-watch-logs"
+  vpc_id               = var.private_vpc_id
+  traffic_type         = "ALL"
+}
+
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "${var.project_name}-vpc-flow-logs"
+  retention_in_days = 1
+}
+
 resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id            = var.private_vpc_id
   service_name      = "com.amazonaws.${var.region}.ecr.api"
