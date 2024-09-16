@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "logs_policy" {
 data "aws_iam_policy_document" "ecr_policy" {
   statement {
     actions = [
-      "ecr:*"
+      "*"
     ]
 
     effect = "Allow"
