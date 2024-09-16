@@ -58,6 +58,27 @@ resource "aws_security_group" "this" {
   }
 }
 
+data "aws_route_table" "private" {
+  for_each = toset(var.private_subnet_ids)
+  subnet_id = each.value
+}
+
+resource "aws_route" "ecr_api_route" {
+  for_each = data.aws_route_table.private
+
+  route_table_id             = each.value.id
+  destination_prefix_list_id = aws_vpc_endpoint.ecr_api.prefix_list_id
+  vpc_endpoint_id            = aws_vpc_endpoint.ecr_api.id
+}
+
+resource "aws_route" "ecr_dkr_route" {
+  for_each = data.aws_route_table.private
+
+  route_table_id             = each.value.id
+  destination_prefix_list_id = aws_vpc_endpoint.ecr_dkr.prefix_list_id
+  vpc_endpoint_id            = aws_vpc_endpoint.ecr_dkr.id
+}
+
 resource "aws_apigatewayv2_vpc_link" "this" {
   name               = "${var.project_name}-vpc-link"
   subnet_ids         = var.private_subnet_ids
