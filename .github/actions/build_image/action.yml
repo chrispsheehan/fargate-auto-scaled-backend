@@ -1,5 +1,5 @@
-name: Build and push image to DockerHub
-description: Pushes a Docker image to DockerHub when changes are detected in the source code.
+name: Build and push image to ECR
+description: Pushes an image to ECR when changes are detected in the source code.
 
 inputs:
   aws_account_id:
