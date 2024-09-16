@@ -1,3 +1,19 @@
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id            = var.private_vpc_id
+  service_name      = "com.amazonaws.${var.region}.ecr.api"
+  vpc_endpoint_type = "Interface"
+  security_group_ids = [aws_security_group.ecs_sg.id]
+  subnet_ids         = var.private_subnet_ids
+}
+
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id            = var.private_vpc_id
+  service_name      = "com.amazonaws.${var.region}.ecr.dkr"
+  vpc_endpoint_type = "Interface"
+  security_group_ids = [aws_security_group.ecs_sg.id]
+  subnet_ids         = var.private_subnet_ids
+}
+
 resource "aws_security_group" "this" {
   name   = "${var.project_name}-api-gateway-sg"
   vpc_id = var.private_vpc_id
