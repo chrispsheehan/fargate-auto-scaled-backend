@@ -39,6 +39,16 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   private_dns_enabled = true
 }
 
+# Data source to get the Amazon-managed prefix list for the ECR API
+data "aws_prefix_list" "ecr_api" {
+  name = "com.amazonaws.${var.region}.ecr.api"
+}
+
+# Data source to get the Amazon-managed prefix list for the ECR Docker
+data "aws_prefix_list" "ecr_dkr" {
+  name = "com.amazonaws.${var.region}.ecr.dkr"
+}
+
 resource "aws_security_group" "this" {
   name   = "${var.project_name}-api-gateway-sg"
   vpc_id = var.private_vpc_id
@@ -67,7 +77,7 @@ resource "aws_route" "ecr_api_route" {
   for_each = data.aws_route_table.private
 
   route_table_id             = each.value.id
-  destination_prefix_list_id = aws_vpc_endpoint.ecr_api.prefix_list_id
+  destination_prefix_list_id = data.aws_prefix_list.ecr_api.prefix_list_id
   vpc_endpoint_id            = aws_vpc_endpoint.ecr_api.id
 }
 
@@ -75,7 +85,7 @@ resource "aws_route" "ecr_dkr_route" {
   for_each = data.aws_route_table.private
 
   route_table_id             = each.value.id
-  destination_prefix_list_id = aws_vpc_endpoint.ecr_dkr.prefix_list_id
+  destination_prefix_list_id = data.aws_prefix_list.ecr_dkr.prefix_list_id
   vpc_endpoint_id            = aws_vpc_endpoint.ecr_dkr.id
 }
 
