@@ -25,3 +25,10 @@ local-deploy:
     cd tf
     terraform init
     terraform apply
+
+local-destroy:
+    #!/usr/bin/env bash
+    export TF_VAR_image_uri=blah
+    cd tf
+    terraform init
+    terraform destroy
