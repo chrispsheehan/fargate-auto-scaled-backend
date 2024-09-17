@@ -19,8 +19,8 @@
                 "wget --quiet --spider --tries=1 http://localhost:${container_port}/health || exit 1"
             ],
             "interval": 5,
-            "retries": 3,
-            "start_period": 5,
+            "retries": 1,
+            "start_period": 1,
             "timeout": 5
         },
         "logConfiguration": {
