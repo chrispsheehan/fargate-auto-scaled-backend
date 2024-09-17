@@ -11,6 +11,7 @@ app.listen(port)
 
 app.use((req, res, next) => {
   console.log(`Request received: ${req.method} ${req.url}`);
+  console.log(`base path is ${basePath}`)
   next();
 });
 
