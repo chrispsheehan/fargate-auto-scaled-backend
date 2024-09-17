@@ -42,31 +42,31 @@ jobs:
             cd tf
             terraform destroy -auto-approve
 
-  destroy-ecr:
-    needs: destroy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # destroy-ecr:
+  #   needs: destroy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            aws-region: ${{ env.aws_region }}
-            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-            role-session-name: GitHubActions
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #           aws-region: ${{ env.aws_region }}
+  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+  #           role-session-name: GitHubActions
 
-      - name: Init
-        shell: bash
-        run: |
-            cd tf-ecr
-            terraform init
+  #     - name: Init
+  #       shell: bash
+  #       run: |
+  #           cd tf-ecr
+  #           terraform init
     
-      - name: Destroy
-        shell: bash
-        id: action
-        env:
-          TF_VAR_project_name: ${{ github.event.repository.name }}
-          TF_VAR_image_uri: none
-        run: |
-            cd tf-ecr
-            terraform destroy -auto-approve
+  #     - name: Destroy
+  #       shell: bash
+  #       id: action
+  #       env:
+  #         TF_VAR_project_name: ${{ github.event.repository.name }}
+  #         TF_VAR_image_uri: none
+  #       run: |
+  #           cd tf-ecr
+  #           terraform destroy -auto-approve
