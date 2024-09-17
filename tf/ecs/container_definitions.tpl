@@ -34,8 +34,8 @@
         "essential": true,
         "environment": [
             {
-                "name": "BASE_URL",
-                "value": "${base_url}"
+                "name": "BASE_PATH",
+                "value": "${base_path}"
             }
         ],
         "environmentFiles": [],
