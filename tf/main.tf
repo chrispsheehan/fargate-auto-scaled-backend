@@ -1,8 +1,9 @@
 module "ecs" {
   source = "./ecs"
 
-  project_name = var.project_name
-  image_uri    = var.image_uri
+  project_name   = var.project_name
+  api_stage_name = local.api_stage_name
+  image_uri      = var.image_uri
 
   region             = var.region
   initial_task_count = var.initial_task_count
@@ -24,6 +25,7 @@ module "vpc_link" {
   source = "./vpc_link"
 
   project_name = var.project_name
+  stage_name   = local.api_stage_name
 
   lb_listener_arn        = module.ecs.lb_listener_arn
   private_vpc_id         = data.aws_vpc.private.id

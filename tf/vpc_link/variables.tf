@@ -7,6 +7,10 @@ variable "project_name" {
   type = string
 }
 
+variable "stage_name" {
+  type = string
+}
+
 variable "private_vpc_id" {
   type = string
 }

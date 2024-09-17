@@ -32,7 +32,12 @@
             }
         },
         "essential": true,
-        "environment": [],
+        "environment": [
+            {
+                "name": "BASE_URL",
+                "value": "${base_url}"
+            }
+        ],
         "environmentFiles": [],
         "mountPoints": [],
         "volumesFrom": [],

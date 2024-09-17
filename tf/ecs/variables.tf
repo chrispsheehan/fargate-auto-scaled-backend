@@ -13,6 +13,10 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
+variable "api_stage_name" {
+  type = string
+}
+
 variable "initial_task_count" {
   type = number
 }

@@ -5,20 +5,20 @@ resource "aws_security_group" "vpc_endpoint_sg" {
   vpc_id      = var.private_vpc_id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"  # Allow all protocols
-    cidr_blocks = ["0.0.0.0/0"]  # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]  # Allow all IPv6 traffic
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 
   # Open egress rule: Allow all outbound traffic
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"  # Allow all protocols
-    cidr_blocks = ["0.0.0.0/0"]  # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]  # Allow all IPv6 traffic
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 }
 
