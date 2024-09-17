@@ -49,18 +49,22 @@ resource "aws_security_group" "ecs_sg" {
   vpc_id = var.private_vpc_id
   name   = "${var.project_name}-ecs-sg"
 
+  # Open ingress rule: Allow all traffic from any IP (IPv4 and IPv6)
   ingress {
-    from_port   = var.container_port
-    to_port     = var.container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 
+  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 }
 
@@ -70,7 +74,7 @@ resource "aws_cloudwatch_log_group" "ecs_log_group" {
 }
 
 resource "aws_ecs_service" "ecs" {
-  depends_on = [aws_lb.lb, aws_cloudwatch_log_group.ecs_log_group]
+  # depends_on = [aws_lb.lb, aws_cloudwatch_log_group.ecs_log_group]
 
   name                  = var.project_name
   launch_type           = "FARGATE"
@@ -94,11 +98,11 @@ resource "aws_ecs_service" "ecs" {
     subnets          = var.private_subnet_ids
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.tg.arn
-    container_name   = var.project_name
-    container_port   = var.container_port
-  }
+  # load_balancer {
+  #   target_group_arn = aws_lb_target_group.tg.arn
+  #   container_name   = var.project_name
+  #   container_port   = var.container_port
+  # }
 
   force_new_deployment = true # This forces a new deployment on every apply
 }
@@ -107,62 +111,66 @@ resource "aws_security_group" "lb_sg" {
   vpc_id = var.private_vpc_id
   name   = "${var.project_name}-lb-sg"
 
+  # Open ingress rule: Allow all traffic from any IP (IPv4 and IPv6)
   ingress {
-    from_port   = var.load_balancer_port
-    to_port     = var.load_balancer_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 
+  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 }
 
-resource "aws_lb" "lb" {
-  name               = "${var.project_name}-lb"
-  internal           = true
-  load_balancer_type = "application"
+# resource "aws_lb" "lb" {
+#   name               = "${var.project_name}-lb"
+#   internal           = true
+#   load_balancer_type = "application"
 
-  enable_deletion_protection = false
+#   enable_deletion_protection = false
 
-  security_groups = [aws_security_group.lb_sg.id]
-  subnets         = var.private_subnet_ids
+#   security_groups = [aws_security_group.lb_sg.id]
+#   subnets         = var.private_subnet_ids
 
-  enable_cross_zone_load_balancing = true
-}
+#   enable_cross_zone_load_balancing = true
+# }
 
-resource "aws_lb_target_group" "tg" {
-  depends_on = [aws_lb.lb]
+# resource "aws_lb_target_group" "tg" {
+#   depends_on = [aws_lb.lb]
 
-  name     = "${var.project_name}-tg"
-  port     = var.container_port
-  protocol = "HTTP"
-  vpc_id   = var.private_vpc_id
+#   name     = "${var.project_name}-tg"
+#   port     = var.container_port
+#   protocol = "HTTP"
+#   vpc_id   = var.private_vpc_id
 
-  target_type = "ip"
+#   target_type = "ip"
 
-  health_check {
-    interval            = 60
-    path                = "/health"
-    protocol            = "HTTP"
-    matcher             = "200"
-    timeout             = 5
-    healthy_threshold   = 5
-    unhealthy_threshold = 2
-  }
-}
+#   health_check {
+#     interval            = 60
+#     path                = "/health"
+#     protocol            = "HTTP"
+#     matcher             = "200"
+#     timeout             = 5
+#     healthy_threshold   = 5
+#     unhealthy_threshold = 2
+#   }
+# }
 
-resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_lb.lb.arn
-  port              = var.load_balancer_port
-  protocol          = "HTTP"
+# resource "aws_lb_listener" "listener" {
+#   load_balancer_arn = aws_lb.lb.arn
+#   port              = var.load_balancer_port
+#   protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
-  }
-}
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.tg.arn
+#   }
+# }

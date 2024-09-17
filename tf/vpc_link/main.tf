@@ -43,26 +43,22 @@ resource "aws_security_group" "this" {
   name   = "${var.project_name}-api-gateway-sg"
   vpc_id = var.private_vpc_id
 
+  # Open ingress rule: Allow all traffic from any IP (IPv4 and IPv6)
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.private_vpc_cidr_block]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 
-  # Allow HTTPS (port 443) for accessing ECR
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.private_vpc_cidr_block] # Only allow traffic from within the VPC
-  }
-
+  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
+    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
 }
 

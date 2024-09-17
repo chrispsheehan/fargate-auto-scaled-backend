@@ -1,3 +1,3 @@
 locals {
-  private_vpc_name = "private-vpc"
+  private_vpc_name = "ecs-private-vpc"
 }
