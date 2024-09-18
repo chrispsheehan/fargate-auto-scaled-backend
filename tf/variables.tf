@@ -48,21 +48,8 @@ variable "sqs_scale_down_trigger" {
   default     = 2
 }
 
-
 variable "max_az" {
   description = "limit the amount of azs"
   type        = number
   default     = 3
-}
-
-variable "image_tag" {
-  type        = string
-  description = "ECR tag"
-  default     = "latest"
-}
-
-variable "is_destroy" {
-  description = "Manually set this to true before running terraform destroy."
-  type        = bool
-  default     = false
 }

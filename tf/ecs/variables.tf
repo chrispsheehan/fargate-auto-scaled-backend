@@ -25,10 +25,6 @@ variable "initial_task_count" {
   type = number
 }
 
-variable "image_tag" {
-  type = string
-}
-
 variable "cpu" {
   type    = number
   default = 256
@@ -47,8 +43,4 @@ variable "container_port" {
 variable "load_balancer_port" {
   type    = number
   default = 80
-}
-
-variable "is_destroy" {
-  type        = bool
 }

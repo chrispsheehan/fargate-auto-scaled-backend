@@ -1,7 +1,7 @@
 locals {
   formatted_name      = replace(var.project_name, "-", "_")
   cloudwatch_log_name = "/ecs/${local.formatted_name}"
-  image_uri           = var.is_destroy ? var.image_tag : data.aws_ecr_image.this[0].image_uri
+  image_uri           = data.aws_ecr_image.this.image_uri
   container_definitions = templatefile("${path.module}/container_definitions.tpl", {
     container_name      = var.project_name
     image_uri           = local.image_uri

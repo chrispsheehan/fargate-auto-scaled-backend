@@ -9,11 +9,6 @@ inputs:
     description: 'ECR aws region'
     required: true
 
-outputs:
-  image_tag:
-    description: "The ecr tag of the built image"
-    value: ${{ steps.set-image-uri.outputs.image_tag }}
-
 runs:
   using: 'composite'
   steps:
@@ -50,17 +45,3 @@ runs:
       run: |
         aws ecr get-login-password --region ${{ env.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
         docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
-
-    - if: steps.changes.outputs.src != 'true'
-      name: Obtain latest tag from ecr
-      shell: bash
-      run: |
-        IMAGE_TAG==$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-    - name: Set Image URI
-      id: set-image-uri
-      shell: bash
-      run: |
-        echo "Latest image tag: $IMAGE_TAG"
-        echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
