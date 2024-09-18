@@ -41,14 +41,19 @@ data "aws_iam_policy_document" "logs_policy" {
 data "aws_iam_policy_document" "ecr_policy" {
   statement {
     actions = [
-      "ecr:GetAuthorizationToken",
+      "ecr:GetAuthorizationToken"
+    ]
+    effect = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    actions = [
       "ecr:GetDownloadUrlForLayer",
       "ecr:BatchGetImage",
       "ecr:BatchCheckLayerAvailability"
     ]
-
     effect = "Allow"
-
-    resources = ["*"]
+    resources = [data.aws_ecr_repository.this.arn]
   }
 }
