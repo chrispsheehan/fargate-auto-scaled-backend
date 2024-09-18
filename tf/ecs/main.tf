@@ -34,7 +34,6 @@ resource "aws_ecs_task_definition" "task" {
   cpu                      = var.cpu
   memory                   = var.memory
 
-  task_role_arn      = aws_iam_role.ecs_task_role.arn
   execution_role_arn = aws_iam_role.ecs_task_role.arn
 
   runtime_platform {

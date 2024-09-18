@@ -3,7 +3,7 @@ module "ecs" {
 
   project_name   = var.project_name
   api_stage_name = local.api_stage_name
-  image_uri      = var.image_uri
+  image_tag      = var.image_tag
 
   region             = var.region
   initial_task_count = var.initial_task_count

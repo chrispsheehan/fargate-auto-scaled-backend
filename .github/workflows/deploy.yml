@@ -47,7 +47,7 @@ jobs:
     needs: deploy-ecr
     runs-on: ubuntu-latest
     outputs:
-      image_uri: ${{ steps.build-image.outputs.image_uri }}
+      image_tag: ${{ steps.build-image.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -90,7 +90,7 @@ jobs:
         id: deploy
         env:
           TF_VAR_project_name: ${{ github.event.repository.name }}
-          TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
+          TF_VAR_image_tag: ${{ needs.build.outputs.image_tag }}
         run: |
             cd tf
             terraform apply -auto-approve

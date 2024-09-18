@@ -1,9 +1,14 @@
 locals {
+  is_destroy = (
+    length(try(terraform.workspace, "")) == 0 ||
+    terraform.workspace == "destroy"
+  )
   formatted_name      = replace(var.project_name, "-", "_")
   cloudwatch_log_name = "/ecs/${local.formatted_name}"
+  image_uri = local.is_destroy ? var.image_tag : data.aws_ecr_image.this[0].image_uri
   container_definitions = templatefile("${path.module}/container_definitions.tpl", {
     container_name      = var.project_name
-    image_uri           = var.image_uri
+    image_uri           = local.image_uri
     container_port      = var.container_port
     base_path           = var.api_stage_name
     cpu                 = var.cpu

@@ -20,15 +20,14 @@ local-deploy:
     AWS_REGION=eu-west-2
     aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
     IMAGE_TAG=$(aws ecr describe-images --repository-name $REPONAME --region "$AWS_REGION" --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text)
-    IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPONAME:$IMAGE_TAG"
-    export TF_VAR_image_uri=$IMAGE_URI
+    export TF_VAR_image_tag=$IMAGE_TAG
     cd tf
     terraform init
     terraform apply
 
 local-destroy:
     #!/usr/bin/env bash
-    export TF_VAR_image_uri=blah
+    export TF_VAR_image_tag=blah
     cd tf
     terraform init
     terraform destroy

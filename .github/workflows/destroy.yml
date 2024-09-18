@@ -37,7 +37,7 @@ jobs:
         id: action
         env:
           TF_VAR_project_name: ${{ github.event.repository.name }}
-          TF_VAR_image_uri: none
+          TF_VAR_image_tag: none
         run: |
             cd tf
             terraform destroy -auto-approve
@@ -66,7 +66,7 @@ jobs:
   #       id: action
   #       env:
   #         TF_VAR_project_name: ${{ github.event.repository.name }}
-  #         TF_VAR_image_uri: none
+  #         TF_VAR_image_tag: none
   #       run: |
   #           cd tf-ecr
   #           terraform destroy -auto-approve

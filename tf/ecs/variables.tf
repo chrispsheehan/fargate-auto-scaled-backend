@@ -21,7 +21,7 @@ variable "initial_task_count" {
   type = number
 }
 
-variable "image_uri" {
+variable "image_tag" {
   type = string
 }
 

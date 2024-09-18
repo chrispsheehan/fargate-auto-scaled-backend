@@ -55,7 +55,7 @@ variable "max_az" {
   default     = 3
 }
 
-variable "image_uri" {
+variable "image_tag" {
   type        = string
-  description = "docker.io/<dockerhub_username>/<repo_name>:<tag>"
+  description = "ECR tag"
 }
