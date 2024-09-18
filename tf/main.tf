@@ -11,16 +11,6 @@ module "ecs" {
   private_subnet_ids = data.aws_subnets.private.ids
 }
 
-module "vpc_endpoints" {
-  source = "./vpc_endpoints"
-
-  project_name = var.project_name
-
-  region             = var.region
-  private_vpc_id     = data.aws_vpc.private.id
-  private_subnet_ids = data.aws_subnets.private.ids
-}
-
 module "vpc_link" {
   source = "./vpc_link"
 
