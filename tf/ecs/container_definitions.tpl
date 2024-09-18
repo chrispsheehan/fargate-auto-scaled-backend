@@ -20,7 +20,7 @@
             ],
             "interval": 5,
             "retries": 1,
-            "start_period": 1,
+            "start_period": 5,
             "timeout": 5
         },
         "logConfiguration": {
