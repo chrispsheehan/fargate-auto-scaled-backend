@@ -58,4 +58,11 @@ variable "max_az" {
 variable "image_tag" {
   type        = string
   description = "ECR tag"
+  default     = "latest"
+}
+
+variable "is_destroy" {
+  description = "Manually set this to true before running terraform destroy."
+  type        = bool
+  default     = false
 }

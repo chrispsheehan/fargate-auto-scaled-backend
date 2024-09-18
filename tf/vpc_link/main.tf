@@ -4,17 +4,17 @@ resource "aws_security_group" "vpc_endpoint" {
   vpc_id      = var.private_vpc_id
 
   ingress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = [var.private_vpc_cidr_block]
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.private_vpc_cidr_block]
   }
 
   egress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = [var.private_vpc_cidr_block]
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.private_vpc_cidr_block]
   }
 }
 
@@ -41,17 +41,17 @@ resource "aws_security_group" "api_gateway_vpc_link" {
   vpc_id      = var.private_vpc_id
 
   ingress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = local.private_subnet_cidrs
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.private_subnet_cidrs
   }
 
   egress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = local.private_subnet_cidrs
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.private_subnet_cidrs
   }
 }
 

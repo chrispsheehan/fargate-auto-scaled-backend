@@ -23,6 +23,10 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
+variable "private_subnet_cidrs" {
+  type = list(string)
+}
+
 variable "lb_listener_arn" {
   type        = string
   description = "arn to forward api calls to i.e. load balancer"

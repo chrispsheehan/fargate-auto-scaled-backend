@@ -5,10 +5,13 @@ module "ecs" {
   api_stage_name = local.api_stage_name
   image_tag      = var.image_tag
 
-  region             = var.region
-  initial_task_count = var.initial_task_count
-  private_vpc_id     = data.aws_vpc.private.id
-  private_subnet_ids = data.aws_subnets.private.ids
+  region               = var.region
+  initial_task_count   = var.initial_task_count
+  private_vpc_id       = data.aws_vpc.private.id
+  private_subnet_ids   = data.aws_subnets.private.ids
+  private_subnet_cidrs = local.private_subnet_cidrs
+
+  is_destroy = var.is_destroy
 }
 
 module "vpc_link" {
@@ -21,6 +24,7 @@ module "vpc_link" {
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
   private_subnet_ids     = data.aws_subnets.private.ids
+  private_subnet_cidrs   = local.private_subnet_cidrs
 }
 
 # module "auto_scaling" {

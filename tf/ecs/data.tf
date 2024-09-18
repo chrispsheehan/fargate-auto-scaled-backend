@@ -3,7 +3,7 @@ data "aws_ecr_repository" "this" {
 }
 
 data "aws_ecr_image" "this" {
-  count = local.is_destroy ? 0 : 1
+  count = var.is_destroy ? 0 : 1
 
   repository_name = data.aws_ecr_repository.this.name
   image_tag       = var.image_tag
@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "ecr_policy" {
     actions = [
       "ecr:GetAuthorizationToken"
     ]
-    effect = "Allow"
+    effect    = "Allow"
     resources = ["*"]
   }
 
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "ecr_policy" {
       "ecr:BatchGetImage",
       "ecr:BatchCheckLayerAvailability"
     ]
-    effect = "Allow"
+    effect    = "Allow"
     resources = [data.aws_ecr_repository.this.arn]
   }
 }

@@ -13,6 +13,10 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
+variable "private_subnet_cidrs" {
+  type = list(string)
+}
+
 variable "api_stage_name" {
   type = string
 }
@@ -43,4 +47,8 @@ variable "container_port" {
 variable "load_balancer_port" {
   type    = number
   default = 80
+}
+
+variable "is_destroy" {
+  type        = bool
 }

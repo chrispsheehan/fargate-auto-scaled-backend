@@ -27,7 +27,7 @@ local-deploy:
 
 local-destroy:
     #!/usr/bin/env bash
-    export TF_VAR_image_tag=blah
+    export TF_VAR_is_destroy=true
     cd tf
     terraform init
     terraform destroy
