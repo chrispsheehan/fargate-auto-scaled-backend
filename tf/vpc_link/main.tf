@@ -1,92 +1,64 @@
-# Security Group for the VPC Endpoints
-resource "aws_security_group" "vpc_endpoint_sg" {
+resource "aws_security_group" "vpc_endpoint" {
   name        = "${var.project_name}-vpc-endpoint-sg"
   description = "Security group for VPC endpoints"
   vpc_id      = var.private_vpc_id
 
   ingress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = [var.private_vpc_cidr_block]
   }
 
-  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = [var.private_vpc_cidr_block]
   }
 }
 
-# ECR API VPC Endpoint
-resource "aws_vpc_endpoint" "ecr_api" {
+resource "aws_vpc_endpoint" "interface_endpoints" {
+  for_each            = local.interface_endpoints
   vpc_id              = var.private_vpc_id
-  service_name        = "com.amazonaws.${var.region}.ecr.api"
+  service_name        = "com.amazonaws.${var.region}.${each.value}"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.vpc_endpoint.id]
   subnet_ids          = var.private_subnet_ids
   private_dns_enabled = true
 }
 
-# ECR DKR VPC Endpoint (for pulling images)
-resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id              = var.private_vpc_id
-  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.vpc_endpoint_sg.id]
-  subnet_ids          = var.private_subnet_ids
-  private_dns_enabled = true
-}
-
-# CloudWatch Logs VPC Endpoint
-resource "aws_vpc_endpoint" "logs" {
-  vpc_id              = var.private_vpc_id
-  service_name        = "com.amazonaws.${var.region}.logs"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.vpc_endpoint_sg.id]
-  subnet_ids          = var.private_subnet_ids
-  private_dns_enabled = true
-}
-
-# S3 Gateway VPC Endpoint
-resource "aws_vpc_endpoint" "s3" {
+resource "aws_vpc_endpoint" "gateway_s3" {
   vpc_id            = var.private_vpc_id
   service_name      = "com.amazonaws.${var.region}.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = data.aws_route_tables.subnet_route_tables.ids
 }
 
-resource "aws_security_group" "this" {
-  name   = "${var.project_name}-api-gateway-sg"
-  vpc_id = var.private_vpc_id
+resource "aws_security_group" "api_gateway_vpc_link" {
+  name        = "${var.project_name}-api-gateway-vpc-link-sg"
+  description = "Security group for API Gateway VPC link"
+  vpc_id      = var.private_vpc_id
 
-  # Open ingress rule: Allow all traffic from any IP (IPv4 and IPv6)
   ingress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = local.private_subnet_cidrs
   }
 
-  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = local.private_subnet_cidrs
   }
 }
 
 resource "aws_apigatewayv2_vpc_link" "this" {
   name               = "${var.project_name}-vpc-link"
   subnet_ids         = var.private_subnet_ids
-  security_group_ids = [aws_security_group.this.id]
+  security_group_ids = [aws_security_group.api_gateway_vpc_link.id]
 }
 
 resource "aws_apigatewayv2_integration" "this" {
