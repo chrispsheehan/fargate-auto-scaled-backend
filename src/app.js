@@ -5,6 +5,7 @@ const os = require('os');
 const app = express();
 
 const port = process.env.PORT;
+const basePath = process.env.BASE_PATH || "";
 
 app.listen(port)
 
@@ -17,7 +18,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({msg: "Hello, this is your API"});
 });
 
-app.get('/host', (req, res) => {
+app.get(`/${basePath}/host`, (req, res) => {
   const hostname = os.hostname();
   res.status(200).json({
     message: 'Request handled by this container',

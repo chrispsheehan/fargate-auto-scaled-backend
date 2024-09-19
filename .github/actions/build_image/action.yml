@@ -1,18 +1,13 @@
-name: Build and push image to DockerHub
-description: Pushes a Docker image to DockerHub when changes are detected in the source code.
+name: Build and push image to ECR
+description: Pushes an image to ECR when changes are detected in the source code.
 
 inputs:
-  dockerhub_username:
-    description: 'DockerHub Username'
+  aws_account_id:
+    description: 'ECR aws account id'
     required: true
-  dockerhub_password:
-    description: 'DockerHub Password or Token'
+  aws_region:
+    description: 'ECR aws region'
     required: true
-
-outputs:
-  image_uri:
-    description: "The URI of the built image"
-    value: ${{ steps.set-image-uri.outputs.image_uri }}
 
 runs:
   using: 'composite'
@@ -23,45 +18,44 @@ runs:
         filters: |
           src:
             - 'src/**'
+      
+    - name: Check if ECR repository is empty
+      id: should_build
+      shell: bash
+      run: |
+        IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
+        echo Image count: "$IMAGE_COUNT"
+        if [[ "${{ steps.changes.outputs.src }}" == "true" || "$IMAGE_COUNT" -eq 0 ]]; then
+          echo "Either src changed or ECR is empty"
+          echo "SHOULD_BUILD=true" >> $GITHUB_ENV
+        else
+          echo "Neither src changed nor ECR is empty"
+          echo "SHOULD_BUILD=false" >> $GITHUB_ENV
+        fi
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Set variables
       shell: bash
       run: |
         echo "LOCAL_IMAGE=${{ github.event.repository.name }}:local" >> $GITHUB_ENV
         echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Build Docker Image
       shell: bash
       run: |
         docker build . -t $LOCAL_IMAGE
-        docker tag $LOCAL_IMAGE ${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG
+        docker tag $LOCAL_IMAGE ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
 
-    - if: steps.changes.outputs.src == 'true'
-      name: Push Docker Image to DockerHub
+    - if: env.SHOULD_BUILD == 'true'
+      name: Push Docker Image to ECR
       shell: bash
       run: |
-        echo "${{ inputs.dockerhub_password }}" | docker login --username "${{ inputs.dockerhub_username }}" --password-stdin
-        docker push ${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG
-
-    - if: steps.changes.outputs.src != 'true'
-      name: Obtain latest tag from dockerhub
-      shell: bash
-      run: |
-        IMAGE_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}/tags/?page_size=1&ordering=last_updated" | jq -r '.results[0].name')
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-    - name: Set Image URI
-      id: set-image-uri
-      shell: bash
-      run: |
-        IMAGE_URI="docker.io/${{ inputs.dockerhub_username }}/${{ github.event.repository.name }}:$IMAGE_TAG"
-        echo "Latest image URI: $IMAGE_URI"
-        echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        aws ecr get-login-password --region ${{ env.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
+        docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG

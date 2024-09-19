@@ -18,9 +18,9 @@
                 "CMD-SHELL", 
                 "wget --quiet --spider --tries=1 http://localhost:${container_port}/health || exit 1"
             ],
-            "interval": 60,
-            "retries": 3,
-            "start_period": 10,
+            "interval": 5,
+            "retries": 1,
+            "start_period": 5,
             "timeout": 5
         },
         "logConfiguration": {
@@ -32,7 +32,12 @@
             }
         },
         "essential": true,
-        "environment": [],
+        "environment": [
+            {
+                "name": "BASE_PATH",
+                "value": "${base_path}"
+            }
+        ],
         "environmentFiles": [],
         "mountPoints": [],
         "volumesFrom": [],

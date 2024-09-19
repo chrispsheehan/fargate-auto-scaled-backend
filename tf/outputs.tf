@@ -1,3 +1,3 @@
-output "service-url" {
-  value = "${aws_lb.lb.dns_name}:${var.load_balancer_port}"
+output "url" {
+  value = "${module.vpc_link.api_invoke_url}/host"
 }

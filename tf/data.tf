@@ -1,46 +1,18 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_vpc" "vpc" {
-  default = true
-}
-
-data "aws_availability_zones" "azs" {
-  state = "available"
-}
-
-data "aws_internet_gateway" "igw" {
+data "aws_vpc" "private" {
   filter {
-    name   = "attachment.vpc-id"
-    values = [data.aws_vpc.vpc.id]
+    name   = "tag:Name"
+    values = [local.private_vpc_name]
   }
 }
 
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.private.id]
   }
 }
 
-data "aws_iam_policy_document" "logs_policy" {
-  statement {
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-
-    effect = "Allow"
-
-    resources = [
-      "${aws_cloudwatch_log_group.ecs_log_group.arn}",
-      "${aws_cloudwatch_log_group.ecs_log_group.arn}:*"
-    ]
-  }
+data "aws_subnet" "subnets" {
+  for_each = toset(data.aws_subnets.private.ids)
+  id       = each.value
 }
-
