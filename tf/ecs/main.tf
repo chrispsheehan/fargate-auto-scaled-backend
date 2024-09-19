@@ -107,37 +107,19 @@ resource "aws_security_group" "lb_sg" {
   vpc_id = var.private_vpc_id
   name   = "${var.project_name}-lb-sg"
 
-  # Open ingress rule: Allow all traffic from any IP (IPv4 and IPv6)
   ingress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port   = var.load_balancer_port
+    to_port     = var.load_balancer_port
+    protocol    = "tcp"
+    cidr_blocks = var.private_subnet_cidrs
   }
 
-  # Open egress rule: Allow all outbound traffic
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"          # Allow all protocols
-    cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
-    ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
+    from_port   = var.container_port
+    to_port     = var.container_port
+    protocol    = "tcp"
+    cidr_blocks = [var.private_vpc_cidr_block]
   }
-
-  # ingress {
-  #   from_port        = var.load_balancer_port
-  #   to_port          = var.load_balancer_port
-  #   protocol         = "tcp"
-  #   cidr_blocks      = var.private_subnet_cidrs
-  # }
-
-  # egress {
-  #   from_port        = var.container_port
-  #   to_port          = var.container_port
-  #   protocol         = "tcp"
-  #   security_groups  = [aws_security_group.ecs_sg.id]
-  # }
 }
 
 resource "aws_lb" "lb" {

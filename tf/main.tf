@@ -4,11 +4,12 @@ module "ecs" {
   project_name   = var.project_name
   api_stage_name = local.api_stage_name
 
-  region               = var.region
-  initial_task_count   = var.initial_task_count
-  private_vpc_id       = data.aws_vpc.private.id
-  private_subnet_ids   = data.aws_subnets.private.ids
-  private_subnet_cidrs = local.private_subnet_cidrs
+  region                 = var.region
+  initial_task_count     = var.initial_task_count
+  private_vpc_id         = data.aws_vpc.private.id
+  private_vpc_cidr_block = data.aws_vpc.private.cidr_block
+  private_subnet_ids     = data.aws_subnets.private.ids
+  private_subnet_cidrs   = local.private_subnet_cidrs
 }
 
 module "vpc_link" {
