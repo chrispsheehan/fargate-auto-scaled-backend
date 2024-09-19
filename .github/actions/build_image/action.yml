@@ -24,7 +24,7 @@ runs:
       shell: bash
       run: |
         IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
-        
+        echo Image count: "$IMAGE_COUNT"
         if [[ "${{ steps.changes.outputs.src }}" == "true" || "$IMAGE_COUNT" -eq 0 ]]; then
           echo "Either src changed or ECR is empty"
           echo "SHOULD_BUILD=true" >> $GITHUB_ENV
