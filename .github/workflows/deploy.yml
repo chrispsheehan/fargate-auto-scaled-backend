@@ -10,6 +10,7 @@ env:
   aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
   aws_region: ${{ vars.AWS_REGION }}
   aws_role: ${{ vars.AWS_ROLE }}
+  TF_VAR_project_name: ${{ github.event.repository.name }}
 
 permissions:
   id-token: write
@@ -37,8 +38,6 @@ jobs:
       - name: Deploy
         shell: bash
         id: deploy
-        env:
-          TF_VAR_project_name: ${{ github.event.repository.name }}
         run: |
             cd tf-ecr
             terraform apply -auto-approve
@@ -86,8 +85,6 @@ jobs:
       - name: Deploy
         shell: bash
         id: deploy
-        env:
-          TF_VAR_project_name: ${{ github.event.repository.name }}
         run: |
             cd tf
             terraform apply -auto-approve

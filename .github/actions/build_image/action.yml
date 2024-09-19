@@ -18,28 +18,40 @@ runs:
         filters: |
           src:
             - 'src/**'
+      
+    - name: Check if ECR repository is empty
+      id: should_build
+      shell: bash
+      run: |
+        IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
+        if [[ "${{ steps.changes.outputs.src }}" == "true" || "$IMAGE_COUNT" -eq 0 ]]; then
+          echo "Either src changed or ECR is empty"
+          echo "SHOULD_BUILD=true" >> $GITHUB_ENV
+        else
+          echo "Neither src changed nor ECR is empty"
+          echo "SHOULD_BUILD=false" >> $GITHUB_ENV
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Set variables
       shell: bash
       run: |
         echo "LOCAL_IMAGE=${{ github.event.repository.name }}:local" >> $GITHUB_ENV
         echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Build Docker Image
       shell: bash
       run: |
         docker build . -t $LOCAL_IMAGE
         docker tag $LOCAL_IMAGE ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
 
-    - if: steps.changes.outputs.src == 'true'
+    - if: env.SHOULD_BUILD == 'true'
       name: Push Docker Image to ECR
       shell: bash
       run: |
