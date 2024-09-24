@@ -10,15 +10,7 @@ variable "private_vpc_id" {
   type = string
 }
 
-variable "private_vpc_cidr_block" {
-  type = string
-}
-
 variable "private_subnet_ids" {
-  type = list(string)
-}
-
-variable "private_subnet_cidrs" {
   type = list(string)
 }
 
@@ -41,11 +33,17 @@ variable "memory" {
 }
 
 variable "container_port" {
-  type    = number
-  default = 3000
+  type = number
 }
 
 variable "load_balancer_port" {
-  type    = number
-  default = 80
+  type = number
+}
+
+variable "load_balancer_security_group_id" {
+  type = number
+}
+
+variable "aws_lb_target_group_arn" {
+  type = string
 }
