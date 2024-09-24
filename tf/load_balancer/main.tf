@@ -41,12 +41,12 @@ resource "aws_lb_target_group" "tg" {
   target_type = "ip"
 
   health_check {
-    interval            = 60
+    interval            = 10
     path                = "/health"
     protocol            = "HTTP"
     matcher             = "200"
     timeout             = 5
-    healthy_threshold   = 5
+    healthy_threshold   = 2
     unhealthy_threshold = 2
   }
 }

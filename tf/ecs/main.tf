@@ -75,7 +75,7 @@ resource "aws_ecs_service" "ecs" {
   cluster               = aws_ecs_cluster.cluster.id
   task_definition       = aws_ecs_task_definition.task.arn
   desired_count         = var.initial_task_count
-  wait_for_steady_state = false # Disable waiting for steady state to enable iteration  ##########
+  wait_for_steady_state = true
 
   deployment_circuit_breaker {
     enable   = true
@@ -98,5 +98,12 @@ resource "aws_ecs_service" "ecs" {
     container_port   = var.container_port
   }
 
-  force_new_deployment = true # This forces a new deployment on every apply
+  # Auto-rollback and rolling deployment settings
+  deployment_minimum_healthy_percent = 50  # 50% of tasks must remain healthy during deployment
+  deployment_maximum_percent         = 200 # Can scale up to 200% during the deployment process
+
+  # Health check grace period (in seconds) for the new tasks
+  health_check_grace_period_seconds = 60
+
+  force_new_deployment = false
 }
