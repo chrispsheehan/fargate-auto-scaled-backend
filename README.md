@@ -25,7 +25,8 @@ Required deployment iam privileges.
     "application-autoscaling:*",
     "logs:*",
     "sqs:*",
-    "cloudwatch:*"
+    "cloudwatch:*",
+    "apigateway:*"
 ]
 ```
 
