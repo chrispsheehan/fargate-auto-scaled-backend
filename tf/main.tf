@@ -1,8 +1,9 @@
 module "task_definition" {
   source = "./task_definition"
 
-  project_name = var.project_name
-  region       = var.region
+  project_name   = var.project_name
+  formatted_name = local.formatted_name
+  region         = var.region
 
   container_port      = local.container_port
   cloudwatch_log_name = local.cloudwatch_log_name
@@ -12,12 +13,10 @@ module "task_definition" {
 module "ecs" {
   source = "./ecs"
 
-  project_name   = var.project_name
-  formatted_name = local.formatted_name
+  project_name = var.project_name
 
   initial_task_count              = var.initial_task_count
   container_port                  = local.container_port
-  cloudwatch_log_name             = local.cloudwatch_log_name
   load_balancer_port              = local.load_balancer_port
   aws_lb_target_group_arn         = module.load_balancer.target_group_arn
   task_definition_arn             = module.task_definition.task_definition_arn

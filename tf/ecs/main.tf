@@ -2,16 +2,6 @@ resource "aws_ecs_cluster" "cluster" {
   name = "${var.project_name}-cluster"
 }
 
-resource "aws_iam_policy" "logs_access_policy" {
-  name   = "${var.formatted_name}_logs_access_policy"
-  policy = data.aws_iam_policy_document.logs_policy.json
-}
-
-resource "aws_iam_policy" "ecr_access_policy" {
-  name   = "${var.formatted_name}_ecr_access_policy"
-  policy = data.aws_iam_policy_document.ecr_policy.json
-}
-
 resource "aws_security_group" "ecs_sg" {
   vpc_id = var.private_vpc_id
   name   = "${var.project_name}-ecs-sg"
@@ -30,11 +20,6 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks      = ["0.0.0.0/0"] # Allow all IPv4 traffic
     ipv6_cidr_blocks = ["::/0"]      # Allow all IPv6 traffic
   }
-}
-
-resource "aws_cloudwatch_log_group" "ecs_log_group" {
-  name              = var.cloudwatch_log_name
-  retention_in_days = 1
 }
 
 resource "aws_ecs_service" "ecs" {

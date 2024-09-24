@@ -2,20 +2,12 @@ variable "project_name" {
   type = string
 }
 
-variable "formatted_name" {
-  type = string
-}
-
 variable "private_vpc_id" {
   type = string
 }
 
 variable "private_subnet_ids" {
   type = list(string)
-}
-
-variable "cloudwatch_log_name" {
-  type = string
 }
 
 variable "initial_task_count" {
