@@ -2,7 +2,7 @@ variable "project_name" {
   type = string
 }
 
-variable "region" {
+variable "formatted_name" {
   type = string
 }
 
@@ -14,22 +14,12 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
-variable "api_stage_name" {
+variable "cloudwatch_log_name" {
   type = string
 }
 
 variable "initial_task_count" {
   type = number
-}
-
-variable "cpu" {
-  type    = number
-  default = 256
-}
-
-variable "memory" {
-  type    = number
-  default = 512
 }
 
 variable "container_port" {
@@ -45,5 +35,9 @@ variable "load_balancer_security_group_id" {
 }
 
 variable "aws_lb_target_group_arn" {
+  type = string
+}
+
+variable "task_definition_arn" {
   type = string
 }

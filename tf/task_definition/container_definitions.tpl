@@ -36,7 +36,11 @@
             {
                 "name": "BASE_PATH",
                 "value": "${base_path}"
-            }
+            },
+            {
+                "name": "IMAGE",
+                "value": "${image_uri}"
+            },
         ],
         "environmentFiles": [],
         "mountPoints": [],

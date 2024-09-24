@@ -6,6 +6,7 @@ const app = express();
 
 const port = process.env.PORT;
 const basePath = process.env.BASE_PATH || "";
+const image = process.env.IMAGE || "NOT_FOUND";
 
 app.listen(port)
 
@@ -21,7 +22,7 @@ app.get('/health', (req, res) => {
 app.get(`/${basePath}/host`, (req, res) => {
   const hostname = os.hostname();
   res.status(200).json({
-    message: 'Request handled by this container',
+    message: `Request handled by task image ${image}`,
     hostname: hostname
   });
 });

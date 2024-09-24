@@ -1,14 +1,26 @@
+module "task_definition" {
+  source = "./task_definition"
+
+  project_name = var.project_name
+  region       = var.region
+
+  container_port      = local.container_port
+  cloudwatch_log_name = local.cloudwatch_log_name
+  api_stage_name      = local.api_stage_name
+}
+
 module "ecs" {
   source = "./ecs"
 
   project_name   = var.project_name
-  api_stage_name = local.api_stage_name
+  formatted_name = local.formatted_name
 
-  region                          = var.region
   initial_task_count              = var.initial_task_count
   container_port                  = local.container_port
+  cloudwatch_log_name             = local.cloudwatch_log_name
   load_balancer_port              = local.load_balancer_port
   aws_lb_target_group_arn         = module.load_balancer.target_group_arn
+  task_definition_arn             = module.task_definition.task_definition_arn
   private_vpc_id                  = data.aws_vpc.private.id
   private_subnet_ids              = data.aws_subnets.private.ids
   load_balancer_security_group_id = module.load_balancer.load_balancer_security_group_id
