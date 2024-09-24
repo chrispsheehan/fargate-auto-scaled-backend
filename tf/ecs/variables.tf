@@ -41,7 +41,7 @@ variable "load_balancer_port" {
 }
 
 variable "load_balancer_security_group_id" {
-  type = number
+  type = string
 }
 
 variable "aws_lb_target_group_arn" {
