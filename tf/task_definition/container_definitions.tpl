@@ -40,7 +40,7 @@
             {
                 "name": "IMAGE",
                 "value": "${image_uri}"
-            },
+            }
         ],
         "environmentFiles": [],
         "mountPoints": [],
