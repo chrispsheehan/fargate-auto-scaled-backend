@@ -8,7 +8,7 @@ module "ecs" {
   initial_task_count              = var.initial_task_count
   container_port                  = local.container_port
   load_balancer_port              = local.load_balancer_port
-  aws_lb_target_group_arn         = module.load_balancer.lb_listener_arn
+  aws_lb_target_group_arn         = module.load_balancer.target_group_arn
   private_vpc_id                  = data.aws_vpc.private.id
   private_subnet_ids              = data.aws_subnets.private.ids
   load_balancer_security_group_id = module.load_balancer.load_balancer_security_group_id
