@@ -21,8 +21,11 @@ app.get('/health', (req, res) => {
 
 app.get(`/${basePath}/host`, (req, res) => {
   const hostname = os.hostname();
+  const currentTime = new Date().toISOString();
+
   res.status(200).json({
-    message: `Request handled by task image ${image}`,
+    message: `Request handled by backend at ${currentTime}`,
+    imageUri: image,
     hostname: hostname
   });
 });
