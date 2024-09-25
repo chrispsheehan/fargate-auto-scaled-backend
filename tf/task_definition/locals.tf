@@ -1,5 +1,5 @@
 locals {
-  image_uri = "${data.aws_ecr_repository.this.repository_url}:${data.aws_ecr_image.this.image_tag}"
+  image_uri = data.aws_ecr_image.this.image_uri
   container_definitions = templatefile("${path.module}/container_definitions.tpl", {
     container_name      = var.project_name
     image_uri           = local.image_uri
