@@ -1,4 +1,3 @@
-
 const express = require('express');
 const os = require('os');
 
@@ -15,7 +14,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (req, res) => {
+app.get('/health_is_broken', (req, res) => {
   res.status(200).json({msg: "Hello, this is your API"});
 });
 
