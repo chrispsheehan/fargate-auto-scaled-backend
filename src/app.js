@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health_is_broken_more', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).json({msg: "Hello, this is your API"});
 });
 
