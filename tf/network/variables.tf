@@ -6,6 +6,10 @@ variable "region" {
   type    = string
 }
 
+variable "api_stage_name" {
+  type = string
+}
+
 variable "private_vpc_name" {
   type = string
 }

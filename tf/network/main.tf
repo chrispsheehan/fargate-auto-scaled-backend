@@ -14,7 +14,7 @@ module "vpc_link" {
   source = "./vpc_link"
 
   project_name           = var.project_name
-  stage_name             = local.api_stage_name
+  stage_name             = var.api_stage_name
   lb_listener_arn        = module.load_balancer.lb_listener_arn
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
