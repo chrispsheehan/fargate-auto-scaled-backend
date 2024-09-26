@@ -6,6 +6,14 @@ variable "region" {
   type = string
 }
 
+variable "container_port" {
+  type = number
+}
+
+variable "load_balancer_port" {
+  type = number
+}
+
 variable "task_definition_arn" {
   type = string
 }
@@ -16,14 +24,6 @@ variable "private_vpc_id" {
 
 variable "private_subnet_ids" {
   type = list(string)
-}
-
-variable "container_port" {
-  type = number
-}
-
-variable "load_balancer_port" {
-  type = number
 }
 
 variable "lb_target_group_arn" {
