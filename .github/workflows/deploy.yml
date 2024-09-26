@@ -145,8 +145,8 @@ jobs:
         run: |
           cd tf/task
 
-          TASK_DEFINTION_ARN=$(terraform output -raw task_definition_arn)
-          echo "TASK_DEFINTION_ARN=$TASK_DEFINTION_ARN" >> $GITHUB_OUTPUT
+          TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
+          echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
 
           IMAGE_URI=$(terraform output -raw image_uri)
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
