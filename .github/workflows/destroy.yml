@@ -21,6 +21,30 @@ permissions:
   contents: read
       
 jobs:
+  task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/task
+          terraform init
+    
+      - name: Destroy
+        shell: bash
+        id: destroy
+        run: |
+          cd tf/task
+          terraform destroy -auto-approve
+
   ecr:
     needs: task
     runs-on: ubuntu-latest
@@ -70,8 +94,9 @@ jobs:
           cd tf/network
           terraform destroy -auto-approve
 
-  task:
+  service:
     runs-on: ubuntu-latest
+    needs: network
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -84,105 +109,59 @@ jobs:
       - name: Init
         shell: bash
         run: |
-          cd tf/task
+          cd tf/service
           terraform init
     
       - name: Destroy
         shell: bash
         id: destroy
         run: |
-          cd tf/task
+          cd tf/service
           terraform destroy -auto-approve
 
-  # deploy:
-  #   needs: task-definition
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     deployed_url: ${{ steps.set-envs.outputs.DEPLOYED_URL }}
-  #     cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
-  #     service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
-      
-  #   steps:
-  #     - uses: actions/checkout@v4
+  check:
+    needs: 
+      - task
+      - service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            aws-region: ${{ env.aws_region }}
+            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+            role-session-name: GitHubActions
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #           aws-region: ${{ env.aws_region }}
-  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-  #           role-session-name: GitHubActions
+      - name: Get current task definition
+        id: task-def
+        shell: bash
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-services \
+              --cluster ${{ needs.deploy.outputs.cluster_name }} \
+              --services ${{ needs.deploy.outputs.service_name }} \
+              --region ${{ env.aws_region }} \
+              --query 'services[0].taskDefinition' \
+              --output text)
+          echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
 
-  #     - name: Init
-  #       shell: bash
-  #       run: |
-  #           cd tf
-  #           terraform init
-    
-  #     - name: Deploy
-  #       shell: bash
-  #       id: deploy
-  #       run: |
-  #           cd tf
-  #           terraform apply -auto-approve
+      - name: Get image from task definition
+        id: check-image
+        shell: bash
+        run: |
+          CURRENT_IMAGE=$(aws ecs describe-task-definition \
+              --task-definition ${{ env.TASK_DEF_ARN }} \
+              --region ${{ env.aws_region }} \
+              --query 'taskDefinition.containerDefinitions[*].image' \
+              --output text)
+          echo "CURRENT_IMAGE=$CURRENT_IMAGE"
+          echo "CURRENT_IMAGE=$CURRENT_IMAGE" >> $GITHUB_ENV
 
-  #     - name: Set env vars
-  #       id: set-envs
-  #       shell: bash
-  #       run: |
-  #         cd tf
-
-  #         DEPLOYED_URL=$(terraform output -raw url)
-  #         echo "DEPLOYED_URL=$DEPLOYED_URL" >> $GITHUB_OUTPUT
-
-  #         CLUSTER_NAME=$(terraform output -raw cluster_name)
-  #         echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
-
-  #         SERVICE_NAME=$(terraform output -raw service_name)
-  #         echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_OUTPUT
-
-  # check:
-  #   needs: 
-  #     - task-definition
-  #     - deploy
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #           aws-region: ${{ env.aws_region }}
-  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-  #           role-session-name: GitHubActions
-
-  #     - name: Get current task definition
-  #       id: task-def
-  #       shell: bash
-  #       run: |
-  #         TASK_DEF_ARN=$(aws ecs describe-services \
-  #             --cluster ${{ needs.deploy.outputs.cluster_name }} \
-  #             --services ${{ needs.deploy.outputs.service_name }} \
-  #             --region ${{ env.aws_region }} \
-  #             --query 'services[0].taskDefinition' \
-  #             --output text)
-  #         echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
-
-  #     - name: Get image from task definition
-  #       id: check-image
-  #       shell: bash
-  #       run: |
-  #         CURRENT_IMAGE=$(aws ecs describe-task-definition \
-  #             --task-definition ${{ env.TASK_DEF_ARN }} \
-  #             --region ${{ env.aws_region }} \
-  #             --query 'taskDefinition.containerDefinitions[*].image' \
-  #             --output text)
-  #         echo "CURRENT_IMAGE=$CURRENT_IMAGE"
-  #         echo "CURRENT_IMAGE=$CURRENT_IMAGE" >> $GITHUB_ENV
-
-  #     - name: Compare with Terraform image
-  #       id: compare
-  #       run: |
-  #         if [ "${{ env.CURRENT_IMAGE }}" != "${{ needs.task-definition.outputs.image_uri }}" ]; then
-  #           echo "ERROR: Image mismatch! Current image: ${{ env.CURRENT_IMAGE }}, Expected: ${{ needs.task-definition.outputs.image_uri }}"
-  #           exit 1
-  #         else
-  #           echo "Image matched: ${{ env.CURRENT_IMAGE }}"
-  #         fi
+      - name: Compare with Terraform image
+        id: compare
+        run: |
+          if [ "${{ env.CURRENT_IMAGE }}" != "${{ needs.task-definition.outputs.image_uri }}" ]; then
+            echo "ERROR: Image mismatch! Current image: ${{ env.CURRENT_IMAGE }}, Expected: ${{ needs.task-definition.outputs.image_uri }}"
+            exit 1
+          else
+            echo "Image matched: ${{ env.CURRENT_IMAGE }}"
+          fi
