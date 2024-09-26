@@ -3,6 +3,10 @@ variable "project_name" {
   default = "fargate-auto-scaled-backend"
 }
 
+variable "task_definition_arn" {
+  type = string
+}
+
 variable "region" {
   type    = string
   default = "eu-west-2"
