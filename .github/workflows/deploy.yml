@@ -15,6 +15,8 @@ env:
   TF_VAR_region: ${{ vars.AWS_REGION }}
   TF_VAR_private_vpc_name: ecs-private-vpc
   TF_VAR_api_stage_name: dev
+  TF_VAR_container_port: 3000
+  TF_VAR_load_balancer_port: 80
 
 permissions:
   id-token: write

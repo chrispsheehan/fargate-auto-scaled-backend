@@ -1,9 +1,17 @@
 variable "project_name" {
-  type    = string
+  type = string
 }
 
 variable "region" {
-  type    = string
+  type = string
+}
+
+variable "container_port" {
+  type = number
+}
+
+variable "load_balancer_port" {
+  type = number
 }
 
 variable "api_stage_name" {

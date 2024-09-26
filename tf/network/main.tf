@@ -2,8 +2,8 @@ module "load_balancer" {
   source = "./load_balancer"
 
   project_name           = var.project_name
-  container_port         = local.container_port
-  load_balancer_port     = local.load_balancer_port
+  container_port         = var.container_port
+  load_balancer_port     = var.load_balancer_port
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
   private_subnet_ids     = data.aws_subnets.private.ids
