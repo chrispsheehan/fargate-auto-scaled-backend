@@ -70,33 +70,8 @@ jobs:
           cd tf/ecr
           terraform destroy -auto-approve
 
-  network:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/network
-          terraform init
-    
-      - name: Destroy
-        shell: bash
-        id: destroy
-        run: |
-          cd tf/network
-          terraform destroy -auto-approve
-
   service:
     runs-on: ubuntu-latest
-    needs: network
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -118,3 +93,29 @@ jobs:
         run: |
           cd tf/service
           terraform destroy -auto-approve
+
+  network:
+    runs-on: ubuntu-latest
+    needs: service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/network
+          terraform init
+    
+      - name: Destroy
+        shell: bash
+        id: destroy
+        run: |
+          cd tf/network
+          terraform destroy -auto-approve
+
