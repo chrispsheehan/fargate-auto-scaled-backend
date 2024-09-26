@@ -1,11 +1,37 @@
 variable "project_name" {
-  type    = string
-  default = "fargate-auto-scaled-backend"
+  type = string
 }
 
 variable "region" {
-  type    = string
-  default = "eu-west-2"
+  type = string
+}
+
+variable "container_port" {
+  type = number
+}
+
+variable "load_balancer_port" {
+  type = number
+}
+
+variable "task_definition_arn" {
+  type = string
+}
+
+variable "private_vpc_id" {
+  type = string
+}
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "lb_target_group_arn" {
+  type = string
+}
+
+variable "load_balancer_security_group_id" {
+  type = string
 }
 
 variable "initial_task_count" {

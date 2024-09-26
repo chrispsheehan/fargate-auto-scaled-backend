@@ -9,7 +9,7 @@ terraform {
 
   backend "s3" {
     bucket         = "chrispsheehan-fargate-auto-scaled-backend-tfstate"
-    key            = "state/terraform.tfstate"
+    key            = "network-state/terraform.tfstate"
     region         = "eu-west-2"
     encrypt        = true
     dynamodb_table = "chrispsheehan-fargate-auto-scaled-backend-tf-lockid"
