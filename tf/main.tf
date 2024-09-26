@@ -1,10 +1,9 @@
 module "task_definition" {
   source = "./task_definition"
 
-  project_name   = var.project_name
-  formatted_name = local.formatted_name
-  region         = var.region
-
+  project_name        = var.project_name
+  formatted_name      = local.formatted_name
+  region              = var.region
   container_port      = local.container_port
   cloudwatch_log_name = local.cloudwatch_log_name
   api_stage_name      = local.api_stage_name
@@ -13,8 +12,7 @@ module "task_definition" {
 module "ecs" {
   source = "./ecs"
 
-  project_name = var.project_name
-
+  project_name                    = var.project_name
   initial_task_count              = var.initial_task_count
   container_port                  = local.container_port
   load_balancer_port              = local.load_balancer_port
@@ -28,8 +26,7 @@ module "ecs" {
 module "load_balancer" {
   source = "./load_balancer"
 
-  project_name = var.project_name
-
+  project_name           = var.project_name
   container_port         = local.container_port
   load_balancer_port     = local.load_balancer_port
   private_vpc_id         = data.aws_vpc.private.id
@@ -41,9 +38,8 @@ module "load_balancer" {
 module "vpc_link" {
   source = "./vpc_link"
 
-  project_name = var.project_name
-  stage_name   = local.api_stage_name
-
+  project_name           = var.project_name
+  stage_name             = local.api_stage_name
   lb_listener_arn        = module.load_balancer.lb_listener_arn
   private_vpc_id         = data.aws_vpc.private.id
   private_vpc_cidr_block = data.aws_vpc.private.cidr_block
@@ -54,10 +50,9 @@ module "vpc_link" {
 module "auto_scaling" {
   source = "./auto_scaling"
 
-  project_name     = var.project_name
-  ecs_cluster_name = module.ecs.cluster_name
-  ecs_name         = module.ecs.service_name
-
+  project_name                = var.project_name
+  ecs_cluster_name            = module.ecs.cluster_name
+  ecs_name                    = module.ecs.service_name
   initial_task_count          = var.initial_task_count
   max_scaled_task_count       = var.max_scaled_task_count
   auto_scale_cool_down_period = var.auto_scale_cool_down_period
