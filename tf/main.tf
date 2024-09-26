@@ -1,5 +1,5 @@
 module "ecs" {
-  source = "./ecs"
+  source = "./service"
 
   project_name                    = var.project_name
   initial_task_count              = var.initial_task_count
