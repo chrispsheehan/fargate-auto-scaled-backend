@@ -23,7 +23,7 @@ permissions:
   contents: read
       
 jobs:
-  ecr:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,19 +47,6 @@ jobs:
         run: |
           cd tf/ecr
           terraform apply -auto-approve
-
-  build:
-    needs: ecr
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
 
       - name: Build and push detected changes
         id: build-image
@@ -119,7 +106,7 @@ jobs:
           PRIVATE_VPC_ID=$(terraform output -raw private_vpc_id)
           echo "PRIVATE_VPC_ID=$PRIVATE_VPC_ID" >> $GITHUB_OUTPUT
 
-          PRIVATE_SUBNET_IDS=$(terraform output -raw private_subnet_ids)
+          PRIVATE_SUBNET_IDS=$(terraform output -json private_subnet_ids)
           echo "PRIVATE_SUBNET_IDS=$PRIVATE_SUBNET_IDS" >> $GITHUB_OUTPUT
 
 
