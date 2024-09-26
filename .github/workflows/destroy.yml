@@ -72,6 +72,12 @@ jobs:
 
   service:
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_task_definition_arn: dummy
+      TF_VAR_private_vpc_id: dummy
+      TF_VAR_private_subnet_ids: "[]"
+      TF_VAR_lb_target_group_arn: dummy
+      TF_VAR_load_balancer_security_group_id: dummy
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
