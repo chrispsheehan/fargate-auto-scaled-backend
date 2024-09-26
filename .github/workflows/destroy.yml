@@ -8,14 +8,17 @@ env:
   aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
   aws_region: ${{ vars.AWS_REGION }}
   aws_role: ${{ vars.AWS_ROLE }}
+
   TF_VAR_project_name: ${{ github.event.repository.name }}
+  TF_VAR_region: ${{ vars.AWS_REGION }}
+  TF_VAR_private_vpc_name: ecs-private-vpc
 
 permissions:
   id-token: write
   contents: read
-
-jobs:  
-  destroy:
+      
+jobs:
+  ecr:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,45 +26,139 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            aws-region: ${{ env.aws_region }}
-            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-            role-session-name: GitHubActions
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
 
       - name: Init
         shell: bash
         run: |
-            cd tf
-            terraform init
+          cd tf/ecr
+          terraform init
     
       - name: Destroy
         shell: bash
-        id: action
+        id: destroy
         run: |
-            cd tf
-            terraform destroy -auto-approve
+          cd tf/ecr
+          terraform destroy -auto-approve
 
-  destroy-ecr:
-    needs: destroy
+  network:
+    needs: ecr
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            aws-region: ${{ env.aws_region }}
-            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-            role-session-name: GitHubActions
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
 
       - name: Init
         shell: bash
         run: |
-            cd tf-ecr
-            terraform init
+          cd tf/network
+          terraform init
     
       - name: Destroy
         shell: bash
-        id: action
+        id: destroy
         run: |
-            cd tf-ecr
-            terraform destroy -auto-approve
+          cd tf/network
+          terraform destroy -auto-approve
+
+  # deploy:
+  #   needs: task-definition
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     deployed_url: ${{ steps.set-envs.outputs.DEPLOYED_URL }}
+  #     cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
+  #     service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
+      
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #           aws-region: ${{ env.aws_region }}
+  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+  #           role-session-name: GitHubActions
+
+  #     - name: Init
+  #       shell: bash
+  #       run: |
+  #           cd tf
+  #           terraform init
+    
+  #     - name: Deploy
+  #       shell: bash
+  #       id: deploy
+  #       run: |
+  #           cd tf
+  #           terraform apply -auto-approve
+
+  #     - name: Set env vars
+  #       id: set-envs
+  #       shell: bash
+  #       run: |
+  #         cd tf
+
+  #         DEPLOYED_URL=$(terraform output -raw url)
+  #         echo "DEPLOYED_URL=$DEPLOYED_URL" >> $GITHUB_OUTPUT
+
+  #         CLUSTER_NAME=$(terraform output -raw cluster_name)
+  #         echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+
+  #         SERVICE_NAME=$(terraform output -raw service_name)
+  #         echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_OUTPUT
+
+  # check:
+  #   needs: 
+  #     - task-definition
+  #     - deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #           aws-region: ${{ env.aws_region }}
+  #           role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+  #           role-session-name: GitHubActions
+
+  #     - name: Get current task definition
+  #       id: task-def
+  #       shell: bash
+  #       run: |
+  #         TASK_DEF_ARN=$(aws ecs describe-services \
+  #             --cluster ${{ needs.deploy.outputs.cluster_name }} \
+  #             --services ${{ needs.deploy.outputs.service_name }} \
+  #             --region ${{ env.aws_region }} \
+  #             --query 'services[0].taskDefinition' \
+  #             --output text)
+  #         echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
+
+  #     - name: Get image from task definition
+  #       id: check-image
+  #       shell: bash
+  #       run: |
+  #         CURRENT_IMAGE=$(aws ecs describe-task-definition \
+  #             --task-definition ${{ env.TASK_DEF_ARN }} \
+  #             --region ${{ env.aws_region }} \
+  #             --query 'taskDefinition.containerDefinitions[*].image' \
+  #             --output text)
+  #         echo "CURRENT_IMAGE=$CURRENT_IMAGE"
+  #         echo "CURRENT_IMAGE=$CURRENT_IMAGE" >> $GITHUB_ENV
+
+  #     - name: Compare with Terraform image
+  #       id: compare
+  #       run: |
+  #         if [ "${{ env.CURRENT_IMAGE }}" != "${{ needs.task-definition.outputs.image_uri }}" ]; then
+  #           echo "ERROR: Image mismatch! Current image: ${{ env.CURRENT_IMAGE }}, Expected: ${{ needs.task-definition.outputs.image_uri }}"
+  #           exit 1
+  #         else
+  #           echo "Image matched: ${{ env.CURRENT_IMAGE }}"
+  #         fi
