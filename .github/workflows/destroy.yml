@@ -73,11 +73,11 @@ jobs:
   service:
     runs-on: ubuntu-latest
     env:
-      TF_VAR_task_definition_arn: dummy
-      TF_VAR_private_vpc_id: dummy
-      TF_VAR_private_subnet_ids: "[]"
-      TF_VAR_lb_target_group_arn: dummy
-      TF_VAR_load_balancer_security_group_id: dummy
+      TF_VAR_task_definition_arn: "arn:aws:ecs:region:account-id:task-definition/dummy-task-definition"
+      TF_VAR_private_vpc_id: "vpc-12345678"
+      TF_VAR_private_subnet_ids: '["subnet-12345678", "subnet-87654321"]'
+      TF_VAR_lb_target_group_arn: "arn:aws:elasticloadbalancing:region:account-id:targetgroup/dummy-target-group/1234567890123456"
+      TF_VAR_load_balancer_security_group_id: "sg-12345678"
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
