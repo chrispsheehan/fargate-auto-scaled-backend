@@ -25,7 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -52,7 +51,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -71,6 +69,32 @@ jobs:
         id: destroy
         run: |
           cd tf/network
+          terraform destroy -auto-approve
+
+  task:
+    needs: ecr
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/task
+          terraform init
+    
+      - name: Destroy
+        shell: bash
+        id: destroy
+        run: |
+          cd tf/task
           terraform destroy -auto-approve
 
   # deploy:

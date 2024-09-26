@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -56,15 +55,13 @@ jobs:
           aws_region: ${{ vars.AWS_REGION }}
 
   network:
-    needs: build
     runs-on: ubuntu-latest
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
       image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
-      
+  
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -109,6 +106,50 @@ jobs:
           PRIVATE_SUBNET_IDS=$(terraform output -json private_subnet_ids)
           echo "PRIVATE_SUBNET_IDS=$PRIVATE_SUBNET_IDS" >> $GITHUB_OUTPUT
 
+
+  task:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
+      image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
+      
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/task
+          terraform init
+    
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/task
+          terraform apply -auto-approve
+
+      - name: Set env vars
+        id: set-envs
+        shell: bash
+        run: |
+          cd tf/task
+
+          TASK_DEFINTION_ARN=$(terraform output -raw task_definition_arn)
+          echo "TASK_DEFINTION_ARN=$TASK_DEFINTION_ARN" >> $GITHUB_OUTPUT
+
+          IMAGE_URI=$(terraform output -raw image_uri)
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
+
+          CLOUDWATCH_LOG_GROUP=$(terraform output -raw cloudwatch_log_group)
+          echo "CLOUDWATCH_LOG_GROUP=$CLOUDWATCH_LOG_GROUP" >> $GITHUB_OUTPUT
 
   # deploy:
   #   needs: task-definition

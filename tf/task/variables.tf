@@ -2,10 +2,6 @@ variable "project_name" {
   type = string
 }
 
-variable "formatted_name" {
-  type = string
-}
-
 variable "region" {
   type = string
 }
@@ -14,8 +10,8 @@ variable "api_stage_name" {
   type = string
 }
 
-variable "cloudwatch_log_name" {
-  type = string
+variable "container_port" {
+  type = number
 }
 
 variable "cpu" {
@@ -26,8 +22,4 @@ variable "cpu" {
 variable "memory" {
   type    = number
   default = 512
-}
-
-variable "container_port" {
-  type = number
 }

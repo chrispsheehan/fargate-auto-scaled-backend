@@ -4,12 +4,12 @@ resource "aws_iam_role" "ecs_task_role" {
 }
 
 resource "aws_iam_policy" "logs_access_policy" {
-  name   = "${var.formatted_name}_logs_access_policy"
+  name   = "${local.formatted_name}_logs_access_policy"
   policy = data.aws_iam_policy_document.logs_policy.json
 }
 
 resource "aws_iam_policy" "ecr_access_policy" {
-  name   = "${var.formatted_name}_ecr_access_policy"
+  name   = "${local.formatted_name}_ecr_access_policy"
   policy = data.aws_iam_policy_document.ecr_policy.json
 }
 
@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "ecr_access_policy_attachment" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_log_group" {
-  name              = var.cloudwatch_log_name
+  name              = local.cloudwatch_log_name
   retention_in_days = 1
 }
 
