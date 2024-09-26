@@ -22,6 +22,7 @@ permissions:
       
 jobs:
   ecr:
+    needs: task
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +49,6 @@ jobs:
   network:
     needs: ecr
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -72,9 +72,7 @@ jobs:
           terraform destroy -auto-approve
 
   task:
-    needs: ecr
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
