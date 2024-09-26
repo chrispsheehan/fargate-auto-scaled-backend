@@ -57,9 +57,12 @@ jobs:
   network:
     runs-on: ubuntu-latest
     outputs:
-      task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
-      image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
-  
+      lb_security_group_id: ${{ steps.set-envs.outputs.LB_SERCURITY_GROUP_ID }}
+      lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
+      target_group_arn: ${{ steps.set-envs.outputs.TARGET_GROUP_ARN }}
+      api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
+      private_vpc_id: ${{ steps.set-envs.outputs.PRIVATE_VPC_ID }}
+      private_subnet_ids: ${{ steps.set-envs.outputs.PRIVATE_SUBNET_IDS }}
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -113,7 +116,7 @@ jobs:
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
       image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
-      
+      cloudwatch_log_group: ${{ steps.set-envs.outputs.CLOUDWATCH_LOG_GROUP }}
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -150,6 +153,40 @@ jobs:
 
           CLOUDWATCH_LOG_GROUP=$(terraform output -raw cloudwatch_log_group)
           echo "CLOUDWATCH_LOG_GROUP=$CLOUDWATCH_LOG_GROUP" >> $GITHUB_OUTPUT
+
+  service:
+    needs: 
+      - build
+      - task
+      - network
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_task_definition_arn: ${{ needs.task.outputs.task_definition_arn }}
+      TF_VAR_private_vpc_id: ${{ needs.network.outputs.private_vpc_id }}
+      TF_VAR_private_subnet_ids: ${{ needs.network.outputs.private_subnet_ids }}
+      TF_VAR_lb_target_group_arn: ${{ needs.network.outputs.target_group_arn }}
+      TF_VAR_load_balancer_security_group_id: ${{ needs.network.outputs.lb_security_group_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/service
+          terraform init
+    
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/service
+          terraform apply -auto-approve
 
   # deploy:
   #   needs: task-definition
