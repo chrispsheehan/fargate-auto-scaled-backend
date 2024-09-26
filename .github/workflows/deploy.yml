@@ -114,6 +114,13 @@ jobs:
           API_INVOKE_URL=$(terraform output -raw api_invoke_url)
           echo "API_INVOKE_URL=$API_INVOKE_URL" >> $GITHUB_OUTPUT
 
+          PRIVATE_VPC_ID=$(terraform output -raw private_vpc_id)
+          echo "PRIVATE_VPC_ID=$PRIVATE_VPC_ID" >> $GITHUB_OUTPUT
+
+          PRIVATE_SUBNET_IDS=$(terraform output -raw private_subnet_ids)
+          echo "PRIVATE_SUBNET_IDS=$PRIVATE_SUBNET_IDS" >> $GITHUB_OUTPUT
+
+
   # deploy:
   #   needs: task-definition
   #   runs-on: ubuntu-latest
