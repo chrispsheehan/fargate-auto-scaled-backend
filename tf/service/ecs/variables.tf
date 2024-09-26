@@ -26,7 +26,7 @@ variable "load_balancer_security_group_id" {
   type = string
 }
 
-variable "aws_lb_target_group_arn" {
+variable "lb_target_group_arn" {
   type = string
 }
 
