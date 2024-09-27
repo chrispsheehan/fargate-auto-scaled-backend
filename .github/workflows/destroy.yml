@@ -14,7 +14,6 @@ env:
   TF_VAR_private_vpc_name: ecs-private-vpc
   TF_VAR_api_stage_name: dev
   TF_VAR_container_port: 3000
-  TF_VAR_load_balancer_port: 80
 
 permissions:
   id-token: write
@@ -70,39 +69,10 @@ jobs:
           cd tf/ecr
           terraform destroy -auto-approve
 
-  service:
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
-      TF_VAR_private_vpc_id: "vpc-12345678"
-      TF_VAR_private_subnet_ids: '["subnet-12345678", "subnet-87654321"]'
-      TF_VAR_lb_target_group_arn: "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/dummy-target-group/1234567890123456"
-      TF_VAR_load_balancer_security_group_id: "sg-12345678"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/service
-          terraform init
-    
-      - name: Destroy
-        shell: bash
-        id: destroy
-        run: |
-          cd tf/service
-          terraform destroy -auto-approve
-
   network:
     runs-on: ubuntu-latest
-    needs: service
+    env:
+      TF_VAR_load_balancer_listener_arn: "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/dummy-target-group/1234567890123456"
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -123,4 +93,32 @@ jobs:
         id: destroy
         run: |
           cd tf/network
+          terraform destroy -auto-approve
+        
+
+  service:
+    runs-on: ubuntu-latest
+    needs: network
+    env:
+      TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.aws_region }}
+          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/service
+          terraform init
+    
+      - name: Destroy
+        shell: bash
+        id: destroy
+        run: |
+          cd tf/service
           terraform destroy -auto-approve
