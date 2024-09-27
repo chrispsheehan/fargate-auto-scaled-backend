@@ -31,7 +31,7 @@ resource "aws_lb" "lb" {
 }
 
 resource "aws_lb_target_group" "tg_blue" {
-  name     = "${var.project_name}-tg-blue"
+  name     = "tg-blue"
   port     = var.container_port
   protocol = "HTTP"
   vpc_id   = var.private_vpc_id
@@ -50,7 +50,7 @@ resource "aws_lb_target_group" "tg_blue" {
 }
 
 resource "aws_lb_target_group" "tg_green" {
-  name     = "${var.project_name}-tg-green"
+  name     = "tg-green"
   port     = var.container_port
   protocol = "HTTP"
   vpc_id   = var.private_vpc_id
