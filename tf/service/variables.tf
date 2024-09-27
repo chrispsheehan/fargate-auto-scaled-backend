@@ -6,31 +6,15 @@ variable "region" {
   type = string
 }
 
+variable "private_vpc_name" {
+  type = string
+}
+
 variable "container_port" {
   type = number
 }
 
-variable "load_balancer_port" {
-  type = number
-}
-
 variable "task_definition_arn" {
-  type = string
-}
-
-variable "private_vpc_id" {
-  type = string
-}
-
-variable "private_subnet_ids" {
-  type = list(string)
-}
-
-variable "lb_target_group_arn" {
-  type = string
-}
-
-variable "load_balancer_security_group_id" {
   type = string
 }
 

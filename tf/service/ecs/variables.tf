@@ -22,7 +22,7 @@ variable "load_balancer_port" {
   type = number
 }
 
-variable "load_balancer_security_group_id" {
+variable "lb_security_group_id" {
   type = string
 }
 

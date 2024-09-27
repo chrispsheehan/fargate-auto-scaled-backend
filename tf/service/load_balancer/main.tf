@@ -74,7 +74,7 @@ resource "aws_lb_listener" "listener" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
+    type = "forward"
     forward {
       target_group {
         arn    = aws_lb_target_group.tg_blue.arn

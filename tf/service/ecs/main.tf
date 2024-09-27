@@ -10,7 +10,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port       = 0
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [var.load_balancer_security_group_id]
+    security_groups = [var.lb_security_group_id]
   }
 
   egress {
