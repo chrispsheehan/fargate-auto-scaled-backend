@@ -22,6 +22,8 @@ permissions:
 jobs:
   task:
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_image_uri: dummy
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
