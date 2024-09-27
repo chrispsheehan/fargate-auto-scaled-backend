@@ -6,6 +6,10 @@ output "lb_listener_arn" {
   value = aws_lb_listener.listener.arn
 }
 
-output "target_group_arn" {
-  value = aws_lb_target_group.tg.arn
+output "blue_target_group_arn" {
+  value = aws_lb_target_group.tg_blue.arn
+}
+
+output "green_target_group_arn" {
+  value = aws_lb_target_group.tg_green.arn
 }

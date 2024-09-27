@@ -30,10 +30,27 @@ resource "aws_lb" "lb" {
   enable_cross_zone_load_balancing = true
 }
 
-resource "aws_lb_target_group" "tg" {
-  depends_on = [aws_lb.lb]
+resource "aws_lb_target_group" "tg_blue" {
+  name     = "${var.project_name}-tg-blue"
+  port     = var.container_port
+  protocol = "HTTP"
+  vpc_id   = var.private_vpc_id
 
-  name     = "${var.project_name}-tg"
+  target_type = "ip"
+
+  health_check {
+    interval            = 10
+    path                = "/health"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+resource "aws_lb_target_group" "tg_green" {
+  name     = "${var.project_name}-tg-green"
   port     = var.container_port
   protocol = "HTTP"
   vpc_id   = var.private_vpc_id
@@ -58,6 +75,15 @@ resource "aws_lb_listener" "listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.tg_blue.arn
+        weight = 100
+      }
+      target_group {
+        arn    = aws_lb_target_group.tg_green.arn
+        weight = 0
+      }
+    }
   }
 }
