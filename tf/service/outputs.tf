@@ -6,6 +6,6 @@ output "service_name" {
   value = module.ecs.service_name
 }
 
-output "listener_arn" {
+output "lb_listener_arn" {
   value = module.load_balancer.listener_arn
 }
