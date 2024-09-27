@@ -48,7 +48,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image_uri: ${{ steps.build-image.outputs.image_uri }}
+      image_tag: ${{ steps.build-image.outputs.image_tag }}
     needs: ecr
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +69,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
+      TF_VAR_image_tag: ${{ needs.build.outputs.image_tag }}
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
     steps:
