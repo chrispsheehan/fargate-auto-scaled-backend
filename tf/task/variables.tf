@@ -14,6 +14,10 @@ variable "container_port" {
   type = number
 }
 
+variable "image_tag" {
+  type = string
+}
+
 variable "cpu" {
   type    = number
   default = 256

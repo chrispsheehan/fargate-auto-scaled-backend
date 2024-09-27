@@ -9,6 +9,12 @@ inputs:
     description: 'ECR aws region'
     required: true
 
+outputs:
+  new_build:
+    description: 'Boolean value indicating if a new build has been pushed'
+  image_uri:
+    description: 'The URI of the pushed Docker image'
+
 runs:
   using: 'composite'
   steps:
@@ -20,7 +26,7 @@ runs:
             - 'src/**'
       
     - name: Check if ECR repository is empty
-      id: should_build
+      id: check_should_build
       shell: bash
       run: |
         IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
@@ -32,6 +38,7 @@ runs:
           echo "Neither src changed nor ECR is empty"
           echo "SHOULD_BUILD=false" >> $GITHUB_ENV
         fi
+        echo "::set-output name=new_build::${{ env.SHOULD_BUILD }}"
 
     - if: env.SHOULD_BUILD == 'true'
       name: Checkout code
@@ -57,5 +64,11 @@ runs:
       name: Push Docker Image to ECR
       shell: bash
       run: |
-        aws ecr get-login-password --region ${{ env.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
+        aws ecr get-login-password --region ${{ inputs.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
         docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
+        IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG"
+        echo "::set-output name=image_uri::$IMAGE_URI"
+
+outputs:
+  new_build: ${{ steps.check_should_build.outputs.should_build }}
+  image_uri: ${{ steps.push.outputs.image_uri }}
