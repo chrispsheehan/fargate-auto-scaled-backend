@@ -75,6 +75,3 @@ runs:
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$LATEST_TAG"
         echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
         echo "::set-output name=image_uri::$IMAGE_URI"
-
-outputs:
-  image_uri: ${{ steps.push.outputs.image_uri }}
