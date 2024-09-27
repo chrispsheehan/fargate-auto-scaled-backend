@@ -5,6 +5,7 @@ data "aws_ecr_repository" "this" {
 data "aws_ecr_image" "this" {
   repository_name = data.aws_ecr_repository.this.name
   image_tag       = var.image_tag
+  most_recent     = true
 }
 
 data "aws_iam_policy_document" "assume_role" {
