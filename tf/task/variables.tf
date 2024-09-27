@@ -14,7 +14,7 @@ variable "container_port" {
   type = number
 }
 
-variable "image_tag" {
+variable "image_uri" {
   type = string
 }
 
