@@ -1,6 +1,9 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
 
 env:
