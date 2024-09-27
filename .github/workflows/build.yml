@@ -47,6 +47,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }}
     needs: ecr
     steps:
       - uses: actions/checkout@v4
@@ -66,9 +68,10 @@ jobs:
   task:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
-      image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
@@ -95,9 +98,5 @@ jobs:
         shell: bash
         run: |
           cd tf/task
-
           TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
           echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
-
-          IMAGE_URI=$(terraform output -raw image_uri)
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
