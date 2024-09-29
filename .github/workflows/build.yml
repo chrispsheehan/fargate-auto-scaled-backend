@@ -15,6 +15,10 @@ on:
       repository_name:
         required: true
         type: string
+    outputs:
+      task_definition_arn:
+        description: "The ARN of the deployed task definition"
+        value: ${{ jobs.task.outputs.task_definition_arn }}
 
 permissions:
   id-token: write
