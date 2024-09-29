@@ -22,7 +22,7 @@ permissions:
   contents: read
       
 jobs:
-  init-task:
+  init:
     uses: ./.github/workflows/build.yml
     with:
         aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
@@ -32,10 +32,10 @@ jobs:
 
   service:
     needs: 
-      - init-task
+      - init
     runs-on: ubuntu-latest
     env:
-      TF_VAR_task_definition_arn: ${{ needs.init-task.outputs.task_definition_arn }}
+      TF_VAR_task_definition_arn: ${{ needs.init.outputs.task_definition_arn }}
     outputs:
       cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
       service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}

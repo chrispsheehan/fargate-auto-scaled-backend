@@ -17,6 +17,7 @@ on:
         type: string
 
 env:
+  TF_VAR_project_name: ${{ inputs.repository_name }}
   TF_VAR_region: ${{ inputs.aws_region }}
   TF_VAR_private_vpc_name: ecs-private-vpc
   TF_VAR_api_stage_name: dev
