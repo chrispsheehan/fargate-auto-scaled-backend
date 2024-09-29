@@ -68,6 +68,7 @@ runs:
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG"
         echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
         echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        echo Image:$IMAGE_URI
 
     - if: env.SHOULD_BUILD != 'true'
       name: Get Latest ECR Image Tag
@@ -78,3 +79,4 @@ runs:
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$LATEST_TAG"
         echo "image_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
         echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        echo Image:$IMAGE_URI
