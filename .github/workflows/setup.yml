@@ -54,7 +54,7 @@ jobs:
         id: deploy
         run: |
           cd tf/service
-          terraform apply -auto-approve
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
       - name: Set env vars
         id: set-envs
@@ -99,7 +99,7 @@ jobs:
         id: deploy
         run: |
           cd tf/network
-          terraform apply -auto-approve
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
       - name: Set env vars
         id: set-envs
