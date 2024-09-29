@@ -60,8 +60,7 @@ runs:
         aws ecr get-login-password --region ${{ inputs.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
         docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG"
-        echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-        echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
         echo Image:$IMAGE_URI
 
     - if: env.SHOULD_BUILD != 'true'
@@ -71,12 +70,5 @@ runs:
         LATEST_TAG=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} \
                     --region ${{ inputs.aws_region }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$LATEST_TAG"
-        echo "image_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-        echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
-        echo Image:$IMAGE_URI
-
-outputs:
-  image_tag:
-    description: 'The TAG of the pushed ECR image'
-  image_uri:
-    description: 'The URI of the pushed ECR image'
+        echo "$IMAGE_TAG=$LATEST_TAG" >> $GITHUB_ENV
+        echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV

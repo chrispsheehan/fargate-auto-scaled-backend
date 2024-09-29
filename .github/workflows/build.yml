@@ -66,42 +66,42 @@ jobs:
           aws_region: ${{ vars.AWS_REGION }}
 
       - name: Check image_uri
-        run: "echo Image URI: ${{ steps.build-image.outputs.image_uri }}"
+        run: "echo Image URI: ${{ env.IMAGE_URI }}"
 
-  task:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
-    outputs:
-      task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
+  # task:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
+  #   outputs:
+  #     task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-region: ${{ env.aws_region }}
+  #         role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+  #         role-session-name: GitHubActions
 
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/task
-          terraform init
+  #     - name: Init
+  #       shell: bash
+  #       run: |
+  #         cd tf/task
+  #         terraform init
     
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/task
-          terraform apply -auto-approve
+  #     - name: Deploy
+  #       shell: bash
+  #       id: deploy
+  #       run: |
+  #         cd tf/task
+  #         terraform apply -auto-approve
 
-      - name: Set env vars
-        id: set-envs
-        shell: bash
-        run: |
-          cd tf/task
-          TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
-          echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
+  #     - name: Set env vars
+  #       id: set-envs
+  #       shell: bash
+  #       run: |
+  #         cd tf/task
+  #         TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
+  #         echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
 
           
