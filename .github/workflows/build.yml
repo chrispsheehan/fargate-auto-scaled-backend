@@ -19,6 +19,8 @@ on:
       task_definition_arn:
         description: "The ARN of the deployed task definition"
         value: ${{ jobs.task.outputs.task_definition_arn }}
+      image_uri:
+        value: ${{ jobs.build.outputs.image_uri }}
 
 permissions:
   id-token: write
@@ -72,9 +74,6 @@ jobs:
         id: set-image-uri
         run: |
           echo "image_uri=${{ env.IMAGE_URI }}" >> $GITHUB_OUTPUT
-
-      - name: Check image_uri
-        run: "echo Image URI: ${{ env.IMAGE_URI }}"
 
   task:
     needs: build
