@@ -23,7 +23,7 @@ permissions:
       
 jobs:
   init-task:
-    uses: ./.github/workflows/build-deploy-task.yml
+    uses: ./.github/workflows/build.yml
     with:
         aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
         aws_region: ${{ vars.AWS_REGION }}
