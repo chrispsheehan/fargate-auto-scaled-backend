@@ -11,12 +11,6 @@ env:
   aws_region: ${{ vars.AWS_REGION }}
   aws_role: ${{ vars.AWS_ROLE }}
 
-  TF_VAR_project_name: ${{ github.event.repository.name }}
-  TF_VAR_region: ${{ vars.AWS_REGION }}
-  TF_VAR_private_vpc_name: ecs-private-vpc
-  TF_VAR_api_stage_name: dev
-  TF_VAR_container_port: 3000
-
 permissions:
   id-token: write
   contents: read

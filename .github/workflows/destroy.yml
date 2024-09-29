@@ -9,12 +9,6 @@ env:
   aws_region: ${{ vars.AWS_REGION }}
   aws_role: ${{ vars.AWS_ROLE }}
 
-  TF_VAR_project_name: ${{ github.event.repository.name }}
-  TF_VAR_region: ${{ vars.AWS_REGION }}
-  TF_VAR_private_vpc_name: ecs-private-vpc
-  TF_VAR_api_stage_name: dev
-  TF_VAR_container_port: 3000
-
 permissions:
   id-token: write
   contents: read
@@ -44,7 +38,7 @@ jobs:
         id: destroy
         run: |
           cd tf/task
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
   ecr:
     needs: task
@@ -69,7 +63,7 @@ jobs:
         id: destroy
         run: |
           cd tf/ecr
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
   network:
     runs-on: ubuntu-latest
@@ -95,7 +89,7 @@ jobs:
         id: destroy
         run: |
           cd tf/network
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
         
 
   service:
@@ -123,4 +117,4 @@ jobs:
         id: destroy
         run: |
           cd tf/service
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars

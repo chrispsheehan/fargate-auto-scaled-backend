@@ -16,13 +16,6 @@ on:
         required: true
         type: string
 
-env:
-  TF_VAR_project_name: ${{ inputs.repository_name }}
-  TF_VAR_region: ${{ inputs.aws_region }}
-  TF_VAR_private_vpc_name: ecs-private-vpc
-  TF_VAR_api_stage_name: dev
-  TF_VAR_container_port: 3000
-
 permissions:
   id-token: write
   contents: read
@@ -49,7 +42,7 @@ jobs:
         id: deploy
         run: |
           cd tf/ecr
-          terraform apply -auto-approve
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
   build:
     runs-on: ubuntu-latest
@@ -105,7 +98,7 @@ jobs:
         id: deploy
         run: |
           cd tf/task
-          terraform apply -auto-approve
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
       - name: Set env vars
         id: set-envs
