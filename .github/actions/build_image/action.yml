@@ -9,12 +9,6 @@ inputs:
     description: 'ECR aws region'
     required: true
 
-outputs:
-  image_tag:
-    description: 'The TAG of the pushed ECR image'
-  image_uri:
-    description: 'The URI of the pushed ECR image'
-
 runs:
   using: 'composite'
   steps:
@@ -80,3 +74,9 @@ runs:
         echo "image_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
         echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
         echo Image:$IMAGE_URI
+
+outputs:
+  image_tag:
+    description: 'The TAG of the pushed ECR image'
+  image_uri:
+    description: 'The URI of the pushed ECR image'
