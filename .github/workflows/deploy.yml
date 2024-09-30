@@ -43,7 +43,7 @@ jobs:
           echo "Extracted codedeploy_group_name: $CODE_DEPLOY_APP_NAME"
           echo "CODE_DEPLOY_GROUP_NAME=$CODE_DEPLOY_GROUP_NAME" >> $GITHUB_ENV
 
-          CONTAINER_PORT=$(grep 'container_port' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          CONTAINER_PORT=$(grep 'container_port' "${{ env.TF_VAR_FILE }}" | sed 's/.*= //')
           echo "Extracted container_port: $CONTAINER_PORT"
           echo "CONTAINER_PORT=$CONTAINER_PORT" >> $GITHUB_ENV
 
@@ -54,6 +54,7 @@ jobs:
       # Step 3: Replace placeholders in the appspec.json file
       - name: Prepare AppSpec File
         run: |
+          sed -i 's|{{TASK_VERSION}}|${{ needs.init.outputs.task.task_definition_revision }}|g' appspec.json
           sed -i 's|{{TASK_DEFINITION_ARN}}|${{ needs.init.outputs.task_definition_arn }}|g' appspec.json
           sed -i 's|{{CONTAINER_NAME}}|${{ steps.read-vars.outputs.project_name }}|g' appspec.json
           sed -i 's|{{CONTAINER_PORT}}|${{ steps.read-vars.outputs.container_port }}|g' appspec.json
