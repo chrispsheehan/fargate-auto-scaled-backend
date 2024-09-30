@@ -9,16 +9,17 @@ on:
 permissions:
   id-token: write
   contents: read
-      
+
 jobs:
   check:
     runs-on: ubuntu-latest
     env:
       TFVARS_FILE: tf/variables.tfvars
     outputs:
-      service_exists: ${{ steps.check-service-exists.outputs.SERVICE_EXISTS }}
+      service_exists: ${{ steps.set-output.outputs.SERVICE_EXISTS }}  # Correct output reference
     steps:
       - uses: actions/checkout@v4
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ vars.aws_region }}
@@ -62,16 +63,18 @@ jobs:
           fi
 
       - name: Set output for service existence
+        id: set-output
         run: echo "SERVICE_EXISTS=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
-  
+
   init:
     needs: check
-    if: ${{ needs.check.outputs.service_exists == 'false' }} 
+    if: ${{ needs.check.outputs.service_exists == 'false' }}
     uses: ./.github/workflows/build.yml
     with:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
       aws_region: ${{ vars.AWS_REGION }}
       aws_role: ${{ vars.AWS_ROLE }}
+
 
   # service:
   #   needs:
