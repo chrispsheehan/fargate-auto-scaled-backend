@@ -19,6 +19,7 @@ jobs:
       aws_role: ${{ vars.AWS_ROLE }}
 
   deploy:
+    needs: code
     runs-on: ubuntu-latest
     env:
       TF_VAR_FILE: tf/variables.tfvars
