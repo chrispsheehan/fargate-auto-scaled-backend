@@ -25,6 +25,7 @@ runs:
 
     - name: Read project_name from tfvars file
       id: read-project-name
+      shell: bash
       run: |
         # Extract project_name from tfvars file
         PROJECT_NAME=$(grep 'project_name' "${{ inputs.tfvars_file }}" | sed 's/.*= "\(.*\)"/\1/')
@@ -33,6 +34,7 @@ runs:
 
     - name: Check if ECS cluster exists
       id: check-cluster-exists
+      shell: bash
       run: |
         CLUSTER_STATUS=$(aws ecs describe-clusters \
           --clusters ${{ env.PROJECT_NAME }} \
@@ -46,6 +48,7 @@ runs:
     - name: Check if ECS service exists
       id: check-service-exists
       if: ${{ env.CLUSTER_STATUS != 'NOT_FOUND' }}
+      shell: bash
       run: |
         SERVICE_STATUS=$(aws ecs describe-services \
           --cluster ${{ env.PROJECT_NAME }} \
@@ -62,4 +65,5 @@ runs:
 
     - name: Set output for service existence
       id: set-output
+      shell: bash
       run: echo "SERVICE_EXISTS=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
