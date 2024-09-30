@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "cluster" {
-  name = "${var.project_name}-cluster"
+  name = var.project_name
 }
 
 resource "aws_security_group" "ecs_sg" {
