@@ -2,6 +2,10 @@ variable "project_name" {
   type = string
 }
 
+variable "codedeploy_app_name" {
+  type = string
+}
+
 variable "region" {
   type = string
 }

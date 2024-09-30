@@ -14,6 +14,10 @@ variable "service_name" {
   type = string
 }
 
+variable "codedeploy_app_name" {
+  type = string
+}
+
 variable "lb_listener_arn" {
   type = string
 }
