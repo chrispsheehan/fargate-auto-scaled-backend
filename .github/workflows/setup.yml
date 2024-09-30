@@ -1,6 +1,9 @@
 name: Setup
 
 on:
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
 
 permissions:
