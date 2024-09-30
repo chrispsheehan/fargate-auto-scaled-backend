@@ -1,251 +1,106 @@
-name: Deploy
+name: Setup
 
 on:
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
-
-env:
-  aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
-  aws_region: ${{ vars.AWS_REGION }}
-  aws_role: ${{ vars.AWS_ROLE }}
 
 permissions:
   id-token: write
   contents: read
       
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
+  code:
+    uses: ./.github/workflows/build.yml
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      aws_region: ${{ vars.AWS_REGION }}
+      aws_role: ${{ vars.AWS_ROLE }}
 
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/ecr
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/ecr
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
-      - name: Build and push detected changes
-        id: build-image
-        uses: ./.github/actions/build_image
-        with:
-          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
-          aws_region: ${{ vars.AWS_REGION }}
-
-  task:
-    needs: build
-    runs-on: ubuntu-latest
-    outputs:
-      task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
-      image_uri: ${{ steps.set-envs.outputs.IMAGE_URI }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/task
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/task
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
-      - name: Set env vars
-        id: set-envs
-        shell: bash
-        run: |
-          cd tf/task
-
-          TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
-          echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
-
-          IMAGE_URI=$(terraform output -raw image_uri)
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
-
-  service:
-    needs: 
-      - build
-      - task
+  deploy:
     runs-on: ubuntu-latest
     env:
-      TF_VAR_task_definition_arn: ${{ needs.task.outputs.task_definition_arn }}
-    outputs:
-      cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
-      service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
-      lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
+      TF_VAR_FILE: tf/variables.tfvars
     steps:
       - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
           role-session-name: GitHubActions
 
-      - name: Init
+      - name: Read code deploy app vars from tfvars file
+        id: read-vars
         shell: bash
         run: |
-          cd tf/service
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
+          CODE_DEPLOY_APP_NAME=$(grep 'codedeploy_app_name' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          echo "Extracted codedeploy_app_name: $CODE_DEPLOY_APP_NAME"
+          echo "CODE_DEPLOY_APP_NAME=$CODE_DEPLOY_APP_NAME" >> $GITHUB_ENV
+
+          CODE_DEPLOY_GROUP_NAME=$(grep 'codedeploy_group_name' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          echo "Extracted codedeploy_group_name: $CODE_DEPLOY_APP_NAME"
+          echo "CODE_DEPLOY_GROUP_NAME=$CODE_DEPLOY_GROUP_NAME" >> $GITHUB_ENV
+
+          CONTAINER_PORT=$(grep 'container_port' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          echo "Extracted container_port: $CONTAINER_PORT"
+          echo "CONTAINER_PORT=$CONTAINER_PORT" >> $GITHUB_ENV
+
+          PROJECT_NAME=$(grep 'project_name' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          echo "Extracted project_name: $PROJECT_NAME"
+          echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
+
+      # Step 3: Replace placeholders in the appspec.json file
+      - name: Prepare AppSpec File
         run: |
-          cd tf/service
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+          sed -i 's|{{TASK_DEFINITION_ARN}}|${{ needs.init.outputs.task_definition_arn }}|g' appspec.json
+          sed -i 's|{{CONTAINER_NAME}}|${{ steps.read-vars.outputs.project_name }}|g' appspec.json
+          sed -i 's|{{CONTAINER_PORT}}|${{ steps.read-vars.outputs.container_port }}|g' appspec.json
+          cat appspec.json
 
-      - name: Set env vars
-        id: set-envs
-        shell: bash
+      # Step 4: Create CodeDeploy Deployment
+      - name: Create CodeDeploy Deployment
         run: |
-          cd tf/service
-
-          CLUSTER_NAME=$(terraform output -raw cluster_name)
-          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
-
-          SERVICE_NAME=$(terraform output -raw service_name)
-          echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_OUTPUT
-
-          LB_LISTENER_ARN=$(terraform output -raw lb_listener_arn)
-          echo "LB_LISTENER_ARN=$LB_LISTENER_ARN" >> $GITHUB_OUTPUT
-
-
-  network:
-    needs: service
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_load_balancer_listener_arn: ${{ needs.service.outputs.lb_listener_arn }}
-    outputs:
-      api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.aws_region }}
-          role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/network
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/network
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
-      - name: Set env vars
-        id: set-envs
-        shell: bash
-        run: |
-          cd tf/network
-
-          API_INVOKE_URL=$(terraform output -raw api_invoke_url)
-          echo "API_INVOKE_URL=$API_INVOKE_URL" >> $GITHUB_OUTPUT
-
-  check_image:
-    needs: 
-      - task
-      - service
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            aws-region: ${{ env.aws_region }}
-            role-to-assume: arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.aws_role }}
-            role-session-name: GitHubActions
-
-      - name: Get current task definition
-        id: task-def
-        shell: bash
-        run: |
-          TASK_DEF_ARN=$(aws ecs describe-services \
-              --cluster ${{ needs.service.outputs.cluster_name }} \
-              --services ${{ needs.service.outputs.service_name }} \
-              --region ${{ env.aws_region }} \
-              --query 'services[0].taskDefinition' \
-              --output text)
-          echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
-
-      - name: Get image from task definition
-        id: check-image
-        shell: bash
-        run: |
-          CURRENT_IMAGE=$(aws ecs describe-task-definition \
-              --task-definition ${{ env.TASK_DEF_ARN }} \
-              --region ${{ env.aws_region }} \
-              --query 'taskDefinition.containerDefinitions[*].image' \
-              --output text)
-          echo "CURRENT_IMAGE=$CURRENT_IMAGE"
-          echo "CURRENT_IMAGE=$CURRENT_IMAGE" >> $GITHUB_ENV
-
-      - name: Compare with Terraform image
-        id: compare
-        run: |
-          if [ "${{ env.CURRENT_IMAGE }}" != "${{ needs.task.outputs.image_uri }}" ]; then
-            echo "ERROR: Image mismatch! Current image: ${{ env.CURRENT_IMAGE }}, Expected: ${{ needs.task.outputs.image_uri }}"
-            exit 1
-          else
-            echo "Image matched: ${{ env.CURRENT_IMAGE }}"
-          fi
-
-  check_response:
-    needs: 
-      - network
-      - service
-    runs-on: ubuntu-latest
-    steps:
-      - name: Make API request
-        id: curl_request
-        run: |
-          RESPONSE=$(curl -s ${{ needs.network.outputs.api_invoke_url}}/host)
-          echo "Response: $RESPONSE"
-          echo "$RESPONSE" | jq
-      
-      - name: Assert API response contains expected fields
-        run: |
-          RESPONSE=$(curl -s ${{ needs.network.outputs.api_invoke_url}}/host)
-          echo "$RESPONSE" | jq
-          
-          # Extract values from response
-          MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
-          IMAGE_URI=$(echo "$RESPONSE" | jq -r '.imageUri')
-          HOSTNAME=$(echo "$RESPONSE" | jq -r '.hostname')
-
-          # Check if expected fields exist
-          if [[ "$MESSAGE" == "null" || "$IMAGE_URI" == "null" || "$HOSTNAME" == "null" ]]; then
-            echo "Error: Response does not contain expected fields."
-            exit 1
-          else
-            echo "API response contains all expected fields."
-          fi
+          echo "Creating CodeDeploy deployment"
+          aws deploy create-deployment \
+            --application-name "${{ steps.read-vars.outputs.CODEDEPLOY_APP_NAME }}" \
+            --deployment-group-name "${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}" \
+            --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
+            --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"$(cat appspec.json | jq -c .)\"}" \
+            --region ${{ vars.AWS_REGION }}
         
+      # Step 5: Monitor Deployment Status
+      - name: Monitor Deployment Status
+        run: |
+          echo "Monitoring CodeDeploy deployment status"
+          DEPLOYMENT_ID=$(aws deploy list-deployments \
+            --application-name "${{ steps.read-vars.outputs.CODEDEPLOY_APP_NAME }}" \
+            --deployment-group-name "${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}" \
+             --region ${{ vars.AWS_REGION }} \
+            --max-items 1 \
+            --query 'deployments[0]' --output text)
+
+          if [ "$DEPLOYMENT_ID" == "None" ]; then
+            echo "No deployment found."
+            exit 1
+          fi
+
+          echo "Deployment ID: $DEPLOYMENT_ID"
+          
+          # Loop to check the deployment status
+          while true; do
+            STATUS=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query 'deploymentInfo.status' --output text)
+
+            echo "Deployment status: $STATUS"
+
+            if [[ "$STATUS" == "Succeeded" ]]; then
+              echo "Deployment succeeded!"
+              break
+            elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+              echo "Deployment failed!"
+              exit 1
+            else
+              echo "Deployment is in progress..."
+              sleep 30
+            fi
+          done
