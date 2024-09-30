@@ -54,7 +54,7 @@ jobs:
       # Step 3: Replace placeholders in the appspec.json file
       - name: Prepare AppSpec File
         run: |
-          sed -i 's|{{TASK_VERSION}}|${{ needs.code.outputs.task_definition_revision }}|g' appspec.json
+          sed -i 's|{{TASK_VERSION}}|${{ needs.code.outputs.task_definition_revsion }}|g' appspec.json
           sed -i 's|{{TASK_DEFINITION_ARN}}|${{ needs.code.outputs.task_definition_arn }}|g' appspec.json
           sed -i 's|{{CONTAINER_NAME}}|${{ steps.read-vars.outputs.project_name }}|g' appspec.json
           sed -i 's|{{CONTAINER_PORT}}|${{ steps.read-vars.outputs.container_port }}|g' appspec.json
