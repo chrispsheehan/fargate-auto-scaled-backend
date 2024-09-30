@@ -1,0 +1,65 @@
+name: Check ECS Service
+description: Check if an ECS cluster and service exist
+inputs:
+  aws_region:
+    description: 'AWS Region'
+    required: true
+  aws_role:
+    description: 'AWS Role to assume'
+    required: true
+  tfvars_file:
+    description: 'Path to the tfvars file'
+    required: true
+outputs:
+  service_exists:
+    description: 'Output whether the service exists or not'
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws_region }}
+        role-to-assume: arn:aws:iam::${{ inputs.aws_role }}
+        role-session-name: GitHubActions
+
+    - name: Read project_name from tfvars file
+      id: read-project-name
+      run: |
+        # Extract project_name from tfvars file
+        PROJECT_NAME=$(grep 'project_name' "${{ inputs.tfvars_file }}" | sed 's/.*= "\(.*\)"/\1/')
+        echo "Extracted Project Name: $PROJECT_NAME"
+        echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
+
+    - name: Check if ECS cluster exists
+      id: check-cluster-exists
+      run: |
+        CLUSTER_STATUS=$(aws ecs describe-clusters \
+          --clusters ${{ env.PROJECT_NAME }} \
+          --region ${{ inputs.aws_region }} \
+          --query 'clusters[0].status' \
+          --output text 2>/dev/null || echo "NOT_FOUND")
+
+        echo "Cluster status: $CLUSTER_STATUS"
+        echo "CLUSTER_STATUS=$CLUSTER_STATUS" >> $GITHUB_ENV
+
+    - name: Check if ECS service exists
+      id: check-service-exists
+      if: ${{ env.CLUSTER_STATUS != 'NOT_FOUND' }}
+      run: |
+        SERVICE_STATUS=$(aws ecs describe-services \
+          --cluster ${{ env.PROJECT_NAME }} \
+          --services ${{ env.PROJECT_NAME }} \
+          --query 'services[0].status' \
+          --region ${{ inputs.aws_region }} \
+          --output text 2>/dev/null || echo "NOT_FOUND")
+
+        if [ "$SERVICE_STATUS" == "NOT_FOUND" ]; then
+          echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
+        else
+          echo "SERVICE_EXISTS=true" >> $GITHUB_ENV
+        fi
+
+    - name: Set output for service existence
+      id: set-output
+      run: echo "SERVICE_EXISTS=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
