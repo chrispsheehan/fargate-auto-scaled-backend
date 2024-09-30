@@ -29,6 +29,7 @@ module "deploy" {
 
   project_name              = var.project_name
   codedeploy_app_name       = var.codedeploy_app_name
+  codedeploy_group_name     = var.codedeploy_group_name
   region                    = var.region
   cluster_name              = module.ecs.cluster_name
   service_name              = module.ecs.service_name
