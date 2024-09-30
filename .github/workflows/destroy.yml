@@ -85,36 +85,11 @@ jobs:
         run: |
           cd tf/network
           terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-        
-  deployment:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.aws_region }}
-          role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/deployment
-          terraform init
-    
-      - name: Destroy
-        shell: bash
-        id: destroy
-        run: |
-          cd tf/deployment
-          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
   service:
     runs-on: ubuntu-latest
     needs: 
       - network
-      - deployment
     env:
       TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
     steps:
