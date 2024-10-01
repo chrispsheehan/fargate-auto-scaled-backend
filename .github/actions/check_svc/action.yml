@@ -32,7 +32,7 @@ runs:
         echo "Extracted Project Name: $PROJECT_NAME"
         echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
 
-    - name: Check if ECS cluster exists
+    - name: Check if ECS cluster active
       id: check-cluster-exists
       shell: bash
       run: |
@@ -44,6 +44,11 @@ runs:
 
         echo "Cluster status: $CLUSTER_STATUS"
         echo "CLUSTER_STATUS=$CLUSTER_STATUS" >> $GITHUB_ENV
+
+        if [ "$CLUSTER_STATUS" == "INACTIVE" ]; then
+          echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
+          exit 0
+        fi
 
     - name: Check if ECS service exists
       id: check-service-exists
