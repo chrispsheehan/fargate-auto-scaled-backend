@@ -49,3 +49,4 @@ jobs:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
       aws_region: ${{ vars.AWS_REGION }}
       aws_role: ${{ vars.AWS_ROLE }}
+      task_definition_arn: ${{ needs.build.outputs.task_definition_arn }}
