@@ -13,8 +13,6 @@ permissions:
 jobs:
   service:
     runs-on: ubuntu-latest
-    needs: 
-      - network
     env:
       TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
     steps:

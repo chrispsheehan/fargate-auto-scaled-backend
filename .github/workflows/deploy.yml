@@ -1,9 +1,9 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - 'blue-green-deploy'
+  # push:
+  #   branches:
+  #     - 'blue-green-deploy'
   workflow_dispatch:
 
 permissions:
@@ -98,7 +98,9 @@ jobs:
           
           # Loop to check the deployment status
           while true; do
-            STATUS=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query 'deploymentInfo.status' --output text)
+            DEPLOYMENT_INFO=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query 'deploymentInfo' --output json)
+
+            STATUS=$(echo $DEPLOYMENT_INFO | jq -r '.status')
 
             echo "Deployment status: $STATUS"
 
@@ -106,6 +108,11 @@ jobs:
               echo "Deployment succeeded!"
               break
             elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+              ERROR_CODE=$(echo $DEPLOYMENT_INFO | jq -r '.errorInformation.code')
+              ERROR_MESSAGE=$(echo $DEPLOYMENT_INFO | jq -r '.errorInformation.message')
+
+              echo $ERROR_CODE
+              echo $ERROR_MESSAGE
               echo "Deployment failed!"
               exit 1
             else
