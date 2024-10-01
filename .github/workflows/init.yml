@@ -1,9 +1,9 @@
 name: Init
 
 on:
-  # push:
-  #   branches:
-  #     - 'blue-green-deploy'
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,6 @@ jobs:
         id: set-output
         shell: bash
         run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
-
 
   ecr:
     runs-on: ubuntu-latest

@@ -18,6 +18,10 @@ variable "image_uri" {
   type = string
 }
 
+variable "app_specs_bucket" {
+  type = string
+}
+
 variable "cpu" {
   type    = number
   default = 256

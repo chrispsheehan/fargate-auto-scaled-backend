@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "app_specs" {
-  bucket = "${var.project_name}-app-specs"
+  bucket        = var.app_specs_bucket
   force_destroy = true
 }
 

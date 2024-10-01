@@ -22,6 +22,10 @@ variable "codedeploy_group_name" {
   type = string
 }
 
+variable "app_specs_bucket" {
+  type = string
+}
+
 variable "lb_listener_arn" {
   type = string
 }
