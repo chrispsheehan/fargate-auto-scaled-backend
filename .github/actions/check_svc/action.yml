@@ -47,12 +47,11 @@ runs:
 
         if [ "$CLUSTER_STATUS" == "INACTIVE" ]; then
           echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
-          exit 0
         fi
 
     - name: Check if ECS service exists
       id: check-service-exists
-      if: ${{ env.CLUSTER_STATUS != 'NOT_FOUND' }}
+      if: ${{ env.CLUSTER_STATUS == 'ACTIVE' }}
       shell: bash
       run: |
         SERVICE_STATUS=$(aws ecs describe-services \
@@ -67,6 +66,12 @@ runs:
         else
           echo "SERVICE_EXISTS=true" >> $GITHUB_ENV
         fi
+
+    - name: Override service exists boolean
+      id: check-service-exists
+      if: ${{ env.CLUSTER_STATUS != 'ACTIVE' }}
+      shell: bash
+      run: echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
 
     - name: Set output for service existence
       id: set-output
