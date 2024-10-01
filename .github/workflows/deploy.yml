@@ -68,8 +68,9 @@ jobs:
         run: |
           echo "Creating CodeDeploy deployment"
           APP_SPEC_CONTENT=$(cat appspec.json | jq -c .)
+          ESCAPED_APP_SPEC_CONTENT=$(echo "$APP_SPEC_CONTENT" | sed 's/"/\\"/g')
           
-          echo "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":$APP_SPEC_CONTENT}}" > revision.json
+          echo "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":$ESCAPED_APP_SPEC_CONTENT}}" > revision.json
 
           aws deploy create-deployment \
             --application-name "$APP_NAME" \
