@@ -62,7 +62,7 @@ jobs:
           cat ${{ env.APP_SPEC_FILE }}
 
       - name: Upload yaml to s3
-        run: aws s3 cp ${{ env.APP_SPEC_FILE }} s3://${{ needs.code.outputs.app_specs_bucket}}/${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}"
+        run: aws s3 cp ${{ env.APP_SPEC_FILE }} s3://${{ needs.code.outputs.app_specs_bucket}}/${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}
 
       # Step 4: Create CodeDeploy Deployment
       - name: Create CodeDeploy Deployment
