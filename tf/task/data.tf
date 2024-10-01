@@ -1,5 +1,5 @@
 data "aws_ecr_repository" "this" {
-  name = var.project_name
+  name = var.ecr_repository_name
 }
 
 data "aws_iam_policy_document" "assume_role" {

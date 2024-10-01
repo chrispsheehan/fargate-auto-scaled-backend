@@ -47,6 +47,7 @@ jobs:
         with:
           aws_account_id: ${{ inputs.aws_account_id }}
           aws_region: ${{ inputs.aws_region }}
+          ecr_repository_name: ${{ github.event.repository.name }}
 
       - name: Set image_uri output
         id: set-image-uri
@@ -58,6 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_VAR_image_uri: ${{ needs.image.outputs.image_uri }}
+      TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
       task_definition_revision: ${{ steps.set-envs.outputs.TASK_DEFINITION_REVISION }}

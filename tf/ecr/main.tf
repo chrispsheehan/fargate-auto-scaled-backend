@@ -36,7 +36,7 @@ resource "aws_vpc_endpoint" "gateway_s3" {
 }
 
 resource "aws_ecr_repository" "this" {
-  name                 = var.project_name
+  name                 = var.ecr_repository_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true

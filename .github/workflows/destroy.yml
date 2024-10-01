@@ -42,6 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_VAR_image_uri: dummy
+      TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
