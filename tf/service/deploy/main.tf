@@ -14,10 +14,10 @@ resource "aws_iam_role_policy" "codedeploy_role_policy" {
 }
 
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name = var.codedeploy_group_name
+  app_name = aws_codedeploy_app.ecs_app.name
   # Shifts 10% of the traffic in the first increment, then shifts the remaining 90% after 5 minutes
   deployment_config_name = "CodeDeployDefault.ECSCanary10Percent5Minutes"
-  deployment_group_name  = "${var.project_name}-blue-green-group"
+  deployment_group_name  = var.codedeploy_group_name
   service_role_arn       = aws_iam_role.this.arn
 
   auto_rollback_configuration {
