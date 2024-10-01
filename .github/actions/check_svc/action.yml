@@ -71,7 +71,7 @@ runs:
       id: override-service-exists
       if: ${{ env.CLUSTER_STATUS != 'ACTIVE' }}
       shell: bash
-      run: echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
+      run: echo "SERVICE_EXISTS=false" >> $GITHUB_OUTPUT
 
     - name: Set output for service existence
       id: set-output
