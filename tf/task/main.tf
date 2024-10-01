@@ -1,3 +1,8 @@
+resource "aws_s3_bucket" "app_specs" {
+  bucket = "${var.project_name}-app-specs"
+  force_destroy = true
+}
+
 resource "aws_iam_role" "ecs_task_role" {
   name               = "${var.project_name}-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json

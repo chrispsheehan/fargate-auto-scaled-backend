@@ -21,6 +21,8 @@ on:
         value: ${{ jobs.task.outputs.task_definition_revision }}
       image_uri:
         value: ${{ jobs.image.outputs.image_uri }}
+      app_specs_bucket:
+        value: ${{ jobs.task.outputs.app_specs_bucket }}
 
 permissions:
   id-token: write
@@ -83,6 +85,7 @@ jobs:
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
       task_definition_revision: ${{ steps.set-envs.outputs.TASK_DEFINITION_REVISION }}
+      app_specs_bucket: ${{ steps.set-envs.outputs.APP_SPECS_BUCKET }}
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
@@ -111,5 +114,7 @@ jobs:
           cd tf/task
           TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
           TASK_DEFINITION_REVISION=$(terraform output -raw task_definition_revision)
+          APP_SPECS_BUCKET=$(terraform output -raw app_specs_bucket)
           echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
           echo "TASK_DEFINITION_REVISION=$TASK_DEFINITION_REVISION" >> $GITHUB_OUTPUT
+          echo "APP_SPECS_BUCKET=$APP_SPECS_BUCKET" >> $GITHUB_OUTPUT
