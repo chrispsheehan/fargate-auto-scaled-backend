@@ -64,35 +64,28 @@ jobs:
         run: aws s3 cp ${{ env.APP_SPEC_FILE }} s3://${{ needs.code.outputs.app_specs_bucket}}/${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}
 
       - name: Create CodeDeploy Deployment
+        id: create-deployment
         env:
           APP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_APP_NAME }}
           GROUP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}
         run: |
           echo "Creating CodeDeploy deployment"
-          aws deploy create-deployment \
+          DEPLOYMENT_OUTPUT=$(aws deploy create-deployment \
             --application-name "$APP_NAME" \
             --deployment-group-name "$GROUP_NAME" \
             --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
             --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ needs.code.outputs.app_specs_bucket}}\",\"key\":\"${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}\",\"bundleType\":\"YAML\"}}" \
-            --region ${{ vars.AWS_REGION }}
+            --region ${{ vars.AWS_REGION }})
+          DEPLOYMENT_ID=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.deploymentId')
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
 
       - name: Monitor Deployment Status
         env:
           APP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_APP_NAME }}
           GROUP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}
+          DEPLOYMENT_ID: ${{ steps.create-deployment.outputs.DEPLOYMENT_ID }}
         run: |
           echo "Monitoring CodeDeploy deployment status"
-          DEPLOYMENT_ID=$(aws deploy list-deployments \
-            --application-name "$APP_NAME" \
-            --deployment-group-name "$GROUP_NAME" \
-            --region ${{ vars.AWS_REGION }} \
-            --max-items 1 \
-            --query 'deployments[0]' --output text)
-
-          if [ "$DEPLOYMENT_ID" == "None" ]; then
-            echo "No deployment found."
-            exit 1
-          fi
 
           echo "Deployment ID: $DEPLOYMENT_ID"
           
