@@ -16,7 +16,7 @@ on:
       task_definition_arn:
         description: "The ARN of the deployed task definition"
         value: ${{ jobs.task.outputs.task_definition_arn }}
-      task_definition_revsion:
+      task_definition_revision:
         description: "The revision of the deployed task definition"
         value: ${{ jobs.task.outputs.task_definition_revision }}
       image_uri:
