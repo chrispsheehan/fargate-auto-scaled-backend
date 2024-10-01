@@ -67,4 +67,4 @@ runs:
     - name: Set output for service existence
       id: set-output
       shell: bash
-      run: echo "SERVICE_EXISTS=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
+      run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
