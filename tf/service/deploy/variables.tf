@@ -30,10 +30,10 @@ variable "lb_listener_arn" {
   type = string
 }
 
-variable "lb_green_target_group_arn" {
+variable "lb_green_target_group" {
   type = string
 }
 
-variable "lb_blue_target_group_arn" {
+variable "lb_blue_target_group" {
   type = string
 }

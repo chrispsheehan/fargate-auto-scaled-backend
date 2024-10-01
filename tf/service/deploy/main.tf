@@ -53,11 +53,11 @@ resource "aws_codedeploy_deployment_group" "this" {
       }
 
       target_group {
-        name = var.lb_blue_target_group_arn
+        name = var.lb_blue_target_group
       }
 
       target_group {
-        name = var.lb_green_target_group_arn
+        name = var.lb_green_target_group
       }
     }
   }
