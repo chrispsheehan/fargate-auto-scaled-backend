@@ -63,8 +63,8 @@ jobs:
       # Step 4: Create CodeDeploy Deployment
       - name: Create CodeDeploy Deployment
         env:
-          APP_NAME: ${{ steps.read-vars.outputs.codedeploy_app_name }}
-          GROUP_NAME: ${{ steps.read-vars.outputs.codedeploy_group_name }}
+          APP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_APP_NAME }}
+          GROUP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}
         run: |
           echo "Creating CodeDeploy deployment"
           APP_SPEC_CONTENT=$(cat appspec.json | jq -c .)
@@ -79,8 +79,8 @@ jobs:
       # Step 5: Monitor Deployment Status
       - name: Monitor Deployment Status
         env:
-          APP_NAME: ${{ steps.read-vars.outputs.codedeploy_app_name }}
-          GROUP_NAME: ${{ steps.read-vars.outputs.codedeploy_group_name }}
+          APP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_APP_NAME }}
+          GROUP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}
         run: |
           echo "Monitoring CodeDeploy deployment status"
           DEPLOYMENT_ID=$(aws deploy list-deployments \
