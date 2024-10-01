@@ -20,7 +20,7 @@ on:
         description: "The revision of the deployed task definition"
         value: ${{ jobs.task.outputs.task_definition_revision }}
       image_uri:
-        value: ${{ jobs.build.outputs.image_uri }}
+        value: ${{ jobs.image.outputs.image_uri }}
 
 permissions:
   id-token: write
@@ -50,7 +50,7 @@ jobs:
           cd tf/ecr
           terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
-  build:
+  image:
     runs-on: ubuntu-latest
     outputs:
       image_uri: ${{ steps.set-image-uri.outputs.image_uri }}
@@ -76,10 +76,10 @@ jobs:
           echo "image_uri=${{ env.IMAGE_URI }}" >> $GITHUB_OUTPUT
 
   task:
-    needs: build
+    needs: image
     runs-on: ubuntu-latest
     env:
-      TF_VAR_image_uri: ${{ needs.build.outputs.image_uri }}
+      TF_VAR_image_uri: ${{ needs.image.outputs.image_uri }}
     outputs:
       task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
       task_definition_revision: ${{ steps.set-envs.outputs.TASK_DEFINITION_REVISION }}

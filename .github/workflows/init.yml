@@ -1,0 +1,51 @@
+name: Init
+
+on:
+  push:
+    branches:
+      - 'blue-green-deploy'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      service_exists: ${{ steps.set-output.outputs.service_exists }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check ECS Service
+        id: check-ecs-service
+        uses: ./.github/actions/check_svc
+        with:
+          aws_region: ${{ vars.aws_region }}
+          aws_role: ${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
+          tfvars_file: "tf/variables.tfvars"
+
+      - name: Set output for service existence
+        id: set-output
+        shell: bash
+        run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
+
+  build:
+    needs: check
+    if: ${{ needs.check.outputs.service_exists == 'false' }}
+    uses: ./.github/workflows/build.yml
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      aws_region: ${{ vars.AWS_REGION }}
+      aws_role: ${{ vars.AWS_ROLE }}
+
+  setup:
+    needs:
+      - check
+      - build
+    if: ${{ needs.check.outputs.service_exists == 'false' }}
+    uses: ./.github/workflows/setup.yml
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      aws_region: ${{ vars.AWS_REGION }}
+      aws_role: ${{ vars.AWS_ROLE }}

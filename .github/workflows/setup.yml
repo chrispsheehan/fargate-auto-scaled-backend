@@ -1,120 +1,104 @@
 name: Setup
 
 on:
-  push:
-    branches:
-      - 'blue-green-deploy'
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      aws_account_id:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+      aws_role:
+        required: true
+        type: string
+      task_definition_arn:
+        required: true
+        type: string
+
+    outputs:
+      api_invoke_url:
+        description: "The API gateway url to invoke the app"
+        value: ${{ jobs.network.outputs.api_invoke_url }}
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  check:
+  service:
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_task_definition_arn: ${{ inputs.task_definition_arn }}
     outputs:
-      service_exists: ${{ steps.check-ecs-service.outputs.service_exists }}
+      cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
+      service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
+      lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check ECS Service
-        id: check-ecs-service
-        uses: ./.github/actions/check_svc
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws_region: ${{ vars.aws_region }}
-          aws_role: ${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
-          tfvars_file: "tf/variables.tfvars"
-      - name: Display service_exists output
-        run: echo "service_exists=${{ steps.check-ecs-service.outputs.service_exists }}"
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
+          role-session-name: GitHubActions
 
-  # init:
-  #   needs: check
-  #   if: ${{ needs.check.outputs.service_exists == 'false' }}
-  #   uses: ./.github/workflows/build.yml
-  #   with:
-  #     aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
-  #     aws_region: ${{ vars.AWS_REGION }}
-  #     aws_role: ${{ vars.AWS_ROLE }}
-
-  # service:
-  #   needs:
-  #     - check
-  #     - init
-  #   if: ${{ needs.check.outputs.service_exists == 'false' }} 
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     TF_VAR_task_definition_arn: ${{ needs.init.outputs.task_definition_arn }}
-  #   outputs:
-  #     cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
-  #     service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
-  #     lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-region: ${{ vars.aws_region }}
-  #         role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
-  #         role-session-name: GitHubActions
-
-  #     - name: Init
-  #       shell: bash
-  #       run: |
-  #         cd tf/service
-  #         terraform init
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/service
+          terraform init
     
-  #     - name: Deploy
-  #       shell: bash
-  #       id: deploy
-  #       run: |
-  #         cd tf/service
-  #         terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/service
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
-  #     - name: Set env vars
-  #       id: set-envs
-  #       shell: bash
-  #       run: |
-  #         cd tf/service
-  #         LB_LISTENER_ARN=$(terraform output -raw lb_listener_arn)
-  #         echo "LB_LISTENER_ARN=$LB_LISTENER_ARN" >> $GITHUB_OUTPUT
+      - name: Set env vars
+        id: set-envs
+        shell: bash
+        run: |
+          cd tf/service
+          LB_LISTENER_ARN=$(terraform output -raw lb_listener_arn)
+          echo "LB_LISTENER_ARN=$LB_LISTENER_ARN" >> $GITHUB_OUTPUT
 
-  # network:
-  #   needs: 
-  #     - check
-  #     - service
-  #   if: ${{ needs.check.outputs.service_exists == 'false' }} 
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     TF_VAR_load_balancer_listener_arn: ${{ needs.service.outputs.lb_listener_arn }}
-  #   outputs:
-  #     api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-region: ${{ vars.aws_region }}
-  #         role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
-  #         role-session-name: GitHubActions
+  network:
+    needs: 
+      - service
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_load_balancer_listener_arn: ${{ needs.service.outputs.lb_listener_arn }}
+    outputs:
+      api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
+          role-session-name: GitHubActions
 
-  #     - name: Init
-  #       shell: bash
-  #       run: |
-  #         cd tf/network
-  #         terraform init
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/network
+          terraform init
     
-  #     - name: Deploy
-  #       shell: bash
-  #       id: deploy
-  #       run: |
-  #         cd tf/network
-  #         terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/network
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
 
-  #     - name: Set env vars
-  #       id: set-envs
-  #       shell: bash
-  #       run: |
-  #         cd tf/network
-  #         API_INVOKE_URL=$(terraform output -raw api_invoke_url)
-  #         echo "API_INVOKE_URL=$API_INVOKE_URL" >> $GITHUB_OUTPUT
+      - name: Set env vars
+        id: set-envs
+        shell: bash
+        run: |
+          cd tf/network
+          API_INVOKE_URL=$(terraform output -raw api_invoke_url)
+          echo "API_INVOKE_URL=$API_INVOKE_URL" >> $GITHUB_OUTPUT
         

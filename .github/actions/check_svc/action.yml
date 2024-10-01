@@ -10,9 +10,7 @@ inputs:
   tfvars_file:
     description: 'Path to the tfvars file'
     required: true
-outputs:
-  service_exists:
-    description: 'Output whether the service exists or not'
+
 runs:
   using: "composite"
   steps:
@@ -64,7 +62,3 @@ runs:
           fi
         fi
 
-    - name: Set output for service existence
-      id: set-output
-      shell: bash
-      run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
