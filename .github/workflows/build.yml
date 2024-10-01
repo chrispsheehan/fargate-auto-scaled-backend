@@ -29,34 +29,10 @@ permissions:
   contents: read
       
 jobs:
-  ecr:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ inputs.aws_region }}
-          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/ecr
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/ecr
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
   image:
     runs-on: ubuntu-latest
     outputs:
       image_uri: ${{ steps.set-image-uri.outputs.image_uri }}
-    needs: ecr
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
