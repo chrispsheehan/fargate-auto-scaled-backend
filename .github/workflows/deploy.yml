@@ -75,9 +75,9 @@ jobs:
             --application-name "$APP_NAME" \
             --deployment-group-name "$GROUP_NAME" \
             --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
-            --revision "revisionType=S3,s3Location={\"bucket\":\"${{ needs.code.outputs.app_specs_bucket}}\",\"key\":\"${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}\",\"bundleType\":\"YAML\"}" \
+            --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ needs.code.outputs.app_specs_bucket}}\",\"key\":\"${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}\",\"bundleType\":\"YAML\"}}" \
             --region ${{ vars.AWS_REGION }}
-        
+
       # # Step 5: Monitor Deployment Status
       # - name: Monitor Deployment Status
       #   env:
