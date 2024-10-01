@@ -18,11 +18,21 @@ data "aws_iam_policy_document" "codedeploy_assume_role_policy" {
 data "aws_iam_policy_document" "codedeploy_policy" {
   statement {
     actions = [
+      "ecs:CreateTaskSet",
       "ecs:UpdateService",
       "ecs:DescribeServices",
-      "elasticloadbalancing:*",
-      "autoscaling:*",
-      "codedeploy:*"
+      "ecs:DeleteTaskSet",
+      "ecs:DescribeTaskSets",
+      "ecs:UpdateTaskSet",
+      "elasticloadbalancing:ModifyListener",
+      "elasticloadbalancing:ModifyTargetGroup",
+      "elasticloadbalancing:DeregisterTargets",
+      "elasticloadbalancing:RegisterTargets",
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:UpdateAutoScalingGroup",
+      "codedeploy:CreateDeployment",
+      "codedeploy:GetDeployment",
+      "codedeploy:StopDeployment"
     ]
     effect    = "Allow"
     resources = ["*"]

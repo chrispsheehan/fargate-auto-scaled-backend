@@ -1,9 +1,9 @@
 name: Init
 
 on:
-  # push:
-  #   branches:
-  #     - 'blue-green-deploy'
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
 
 permissions:
