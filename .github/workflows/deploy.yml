@@ -62,25 +62,31 @@ jobs:
 
       # Step 4: Create CodeDeploy Deployment
       - name: Create CodeDeploy Deployment
+        env:
+          APP_NAME: ${{ steps.read-vars.outputs.codedeploy_app_name }}
+          GROUP_NAME: ${{ steps.read-vars.outputs.codedeploy_group_name }}
         run: |
           echo "Creating CodeDeploy deployment"
           APP_SPEC_CONTENT=$(cat appspec.json | jq -c .)
           
           aws deploy create-deployment \
-            --application-name "${{ steps.read-vars.outputs.codedeploy_app_name }}" \
-            --deployment-group-name "${{ steps.read-vars.outputs.codedeploy_group_name }}" \
+            --application-name "$APP_NAME" \
+            --deployment-group-name "$GROUP_NAME" \
             --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
             --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"$APP_SPEC_CONTENT\"}" \
             --region ${{ vars.AWS_REGION }}
         
       # Step 5: Monitor Deployment Status
       - name: Monitor Deployment Status
+        env:
+          APP_NAME: ${{ steps.read-vars.outputs.codedeploy_app_name }}
+          GROUP_NAME: ${{ steps.read-vars.outputs.codedeploy_group_name }}
         run: |
           echo "Monitoring CodeDeploy deployment status"
           DEPLOYMENT_ID=$(aws deploy list-deployments \
-            --application-name "${{ steps.read-vars.outputs.codedeploy_app_name }}" \
-            --deployment-group-name "${{ steps.read-vars.outputs.codedeploy_group_name }}" \
-             --region ${{ vars.AWS_REGION }} \
+            --application-name "$APP_NAME" \
+            --deployment-group-name "$GROUP_NAME" \
+            --region ${{ vars.AWS_REGION }} \
             --max-items 1 \
             --query 'deployments[0]' --output text)
 
