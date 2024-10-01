@@ -1,9 +1,9 @@
 name: Deploy
 
 on:
-  # push:
-  #   branches:
-  #     - 'blue-green-deploy'
+  push:
+    branches:
+      - 'blue-green-deploy'
   workflow_dispatch:
 
 permissions:
@@ -67,8 +67,8 @@ jobs:
           APP_SPEC_CONTENT=$(cat appspec.json | jq -c .)
           
           aws deploy create-deployment \
-            --application-name "${{ env.CODE_DEPLOY_APP_NAME }}" \
-            --deployment-group-name "${{ env.CODE_DEPLOY_GROUP_NAME }}" \
+            --application-name "${{ steps.read-vars.outputs.codedeploy_app_name }}" \
+            --deployment-group-name "${{ steps.read-vars.outputs.codedeploy_group_name }}" \
             --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
             --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"$APP_SPEC_CONTENT\"}" \
             --region ${{ vars.AWS_REGION }}
@@ -78,8 +78,8 @@ jobs:
         run: |
           echo "Monitoring CodeDeploy deployment status"
           DEPLOYMENT_ID=$(aws deploy list-deployments \
-            --application-name "${{ steps.read-vars.outputs.CODEDEPLOY_APP_NAME }}" \
-            --deployment-group-name "${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}" \
+            --application-name "${{ steps.read-vars.outputs.codedeploy_app_name }}" \
+            --deployment-group-name "${{ steps.read-vars.outputs.codedeploy_group_name }}" \
              --region ${{ vars.AWS_REGION }} \
             --max-items 1 \
             --query 'deployments[0]' --output text)
