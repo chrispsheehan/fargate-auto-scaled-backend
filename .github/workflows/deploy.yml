@@ -69,11 +69,13 @@ jobs:
           echo "Creating CodeDeploy deployment"
           APP_SPEC_CONTENT=$(cat appspec.json | jq -c .)
           
+          echo "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"$APP_SPEC_CONTENT\"}}" > revision.json
+
           aws deploy create-deployment \
             --application-name "$APP_NAME" \
             --deployment-group-name "$GROUP_NAME" \
-            --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
-            --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"$APP_SPEC_CONTENT\"}" \
+            --deployment-config-name CodeDeployDefault.ECSCanary10Percent5Minutes \
+            --revision "file://revision.json" \
             --region ${{ vars.AWS_REGION }}
         
       # Step 5: Monitor Deployment Status
