@@ -11,7 +11,36 @@ permissions:
   contents: read
       
 jobs:
+  service:
+    runs-on: ubuntu-latest
+    needs: 
+      - network
+    env:
+      TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.aws_region }}
+          role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/service
+          terraform init
+    
+      - name: Destroy
+        shell: bash
+        id: destroy
+        run: |
+          cd tf/service
+          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+
   task:
+    needs: service
     runs-on: ubuntu-latest
     env:
       TF_VAR_image_uri: dummy
@@ -84,32 +113,4 @@ jobs:
         id: destroy
         run: |
           cd tf/network
-          terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
-  service:
-    runs-on: ubuntu-latest
-    needs: 
-      - network
-    env:
-      TF_VAR_task_definition_arn: "arn:aws:ecs:us-east-1:123456789012:task-definition/dummy-task-definition"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.aws_region }}
-          role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/service
-          terraform init
-    
-      - name: Destroy
-        shell: bash
-        id: destroy
-        run: |
-          cd tf/service
           terraform destroy -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
