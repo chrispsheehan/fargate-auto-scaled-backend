@@ -18,21 +18,21 @@ data "aws_iam_policy_document" "codedeploy_assume_role_policy" {
 data "aws_iam_policy_document" "codedeploy_policy" {
   statement {
     actions = [
-      "ecs:CreateTaskSet",
+      "elasticloadbalancing:RegisterTargets",
+      "elasticloadbalancing:ModifyTargetGroup",
+      "elasticloadbalancing:ModifyListener",
+      "elasticloadbalancing:DeregisterTargets",
+      "ecs:UpdateTaskSet",
       "ecs:UpdateService",
+      "ecs:DescribeTaskSets",
       "ecs:DescribeServices",
       "ecs:DeleteTaskSet",
-      "ecs:DescribeTaskSets",
-      "ecs:UpdateTaskSet",
-      "elasticloadbalancing:ModifyListener",
-      "elasticloadbalancing:ModifyTargetGroup",
-      "elasticloadbalancing:DeregisterTargets",
-      "elasticloadbalancing:RegisterTargets",
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:UpdateAutoScalingGroup",
-      "codedeploy:CreateDeployment",
+      "ecs:CreateTaskSet",
+      "codedeploy:StopDeployment",
       "codedeploy:GetDeployment",
-      "codedeploy:StopDeployment"
+      "codedeploy:CreateDeployment",
+      "autoscaling:UpdateAutoScalingGroup",
+      "autoscaling:DescribeAutoScalingGroups"
     ]
     effect    = "Allow"
     resources = ["*"]
