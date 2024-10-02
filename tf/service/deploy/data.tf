@@ -65,7 +65,8 @@ data "aws_iam_policy_document" "ecs_policy" {
     effect = "Allow"
     resources = [
       var.cluster_arn,
-      local.ecs_service_arn
+      local.ecs_service_arn,
+      local.task_set_arn
     ]
   }
 }
