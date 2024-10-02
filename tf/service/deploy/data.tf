@@ -40,6 +40,16 @@ data "aws_iam_policy_document" "elb_policy" {
 
   statement {
     actions = [
+      "elasticloadbalancing:ModifyListener"
+    ]
+    effect = "Allow"
+    resources = [
+      var.lb_listener_arn
+    ]
+  }
+
+  statement {
+    actions = [
       "elasticloadbalancing:DescribeListeners",
       "elasticloadbalancing:DescribeLoadBalancers",
       "elasticloadbalancing:DescribeTargetHealth",
