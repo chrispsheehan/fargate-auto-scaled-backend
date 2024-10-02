@@ -49,4 +49,17 @@ data "aws_iam_policy_document" "codedeploy_policy" {
       "${data.aws_s3_bucket.app_specs.arn}/*"
     ]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = ["*"]
+    condition {
+      test     = "StringLike"
+      variable = "iam:PassedToService"
+      values   = ["ecs-tasks.amazonaws.com"]
+    }
+  }
 }
