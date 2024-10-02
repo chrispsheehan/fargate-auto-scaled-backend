@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "codedeploy_assume_role_policy" {
   }
 }
 
-data "aws_iam_policy_document" "codedeploy_policy" {
+data "aws_iam_policy_document" "elb_policy" {
   statement {
     actions = [
       "elasticloadbalancing:RegisterTargets",
@@ -36,14 +36,15 @@ data "aws_iam_policy_document" "codedeploy_policy" {
       "elasticloadbalancing:DescribeRules"
     ]
     effect = "Allow"
-
     resources = [
       var.load_balancer_arn,
       var.lb_green_target_group_arn,
       var.lb_blue_target_group_arn
     ]
   }
+}
 
+data "aws_iam_policy_document" "ecs_policy" {
   statement {
     actions = [
       "ecs:UpdateTaskSet",
@@ -55,13 +56,14 @@ data "aws_iam_policy_document" "codedeploy_policy" {
       "ecs:UpdateServicePrimaryTaskSet"
     ]
     effect = "Allow"
-
     resources = [
       var.cluster_arn,
       local.ecs_service_arn
     ]
   }
+}
 
+data "aws_iam_policy_document" "codedeploy_policy" {
   statement {
     actions = [
       "codedeploy:StopDeployment",
@@ -69,13 +71,14 @@ data "aws_iam_policy_document" "codedeploy_policy" {
       "codedeploy:CreateDeployment"
     ]
     effect = "Allow"
-
     resources = [
       aws_codedeploy_app.ecs_app.arn,
       aws_codedeploy_deployment_group.this.arn
     ]
   }
+}
 
+data "aws_iam_policy_document" "autoscaling_policy" {
   statement {
     actions = [
       "autoscaling:DescribeAutoScalingGroups",
@@ -89,35 +92,34 @@ data "aws_iam_policy_document" "codedeploy_policy" {
       "autoscaling:TerminateInstanceInAutoScalingGroup"
     ]
     effect = "Allow"
-
     resources = [
       local.ecs_service_arn,
       var.appautoscaling_policy_scale_up_arn,
       var.appautoscaling_policy_scale_down_arn
     ]
   }
+}
 
+data "aws_iam_policy_document" "s3_policy" {
   statement {
     actions = [
       "s3:GetObject",
       "s3:ListBucket"
     ]
-
     effect = "Allow"
-
     resources = [
       data.aws_s3_bucket.app_specs.arn,
       "${data.aws_s3_bucket.app_specs.arn}/*"
     ]
   }
+}
 
+data "aws_iam_policy_document" "passrole_policy" {
   statement {
     actions = [
       "iam:PassRole"
     ]
-
     effect = "Allow"
-
     resources = [
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*"
     ]
