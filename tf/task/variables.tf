@@ -2,6 +2,10 @@ variable "project_name" {
   type = string
 }
 
+variable "ecr_repository_name" {
+  type = string
+}
+
 variable "region" {
   type = string
 }
@@ -12,6 +16,14 @@ variable "api_stage_name" {
 
 variable "container_port" {
   type = number
+}
+
+variable "image_uri" {
+  type = string
+}
+
+variable "app_specs_bucket" {
+  type = string
 }
 
 variable "cpu" {

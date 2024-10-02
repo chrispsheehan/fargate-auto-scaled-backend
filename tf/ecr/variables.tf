@@ -1,9 +1,15 @@
 variable "project_name" {
-  type    = string
-  default = "fargate-auto-scaled-backend"
+  type = string
+}
+
+variable "ecr_repository_name" {
+  type = string
 }
 
 variable "region" {
-  type    = string
-  default = "eu-west-2"
+  type = string
+}
+
+variable "private_vpc_name" {
+  type = string
 }

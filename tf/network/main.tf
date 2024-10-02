@@ -1,23 +1,54 @@
-module "load_balancer" {
-  source = "./load_balancer"
+resource "aws_security_group" "api_gateway_vpc_link" {
+  name        = "${var.project_name}-api-gateway-vpc-link-sg"
+  description = "Security group for API Gateway VPC link"
+  vpc_id      = local.private_vpc_id
 
-  project_name           = var.project_name
-  container_port         = var.container_port
-  load_balancer_port     = var.load_balancer_port
-  private_vpc_id         = data.aws_vpc.private.id
-  private_vpc_cidr_block = data.aws_vpc.private.cidr_block
-  private_subnet_ids     = data.aws_subnets.private.ids
-  private_subnet_cidrs   = local.private_subnet_cidrs
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = local.private_subnet_cidrs
+  }
+
+  egress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = local.private_subnet_cidrs
+  }
 }
 
-module "vpc_link" {
-  source = "./vpc_link"
+resource "aws_apigatewayv2_vpc_link" "this" {
+  name               = "${var.project_name}-vpc-link"
+  subnet_ids         = local.private_subnet_ids
+  security_group_ids = [aws_security_group.api_gateway_vpc_link.id]
+}
 
-  project_name           = var.project_name
-  stage_name             = var.api_stage_name
-  lb_listener_arn        = module.load_balancer.lb_listener_arn
-  private_vpc_id         = data.aws_vpc.private.id
-  private_vpc_cidr_block = data.aws_vpc.private.cidr_block
-  private_subnet_ids     = data.aws_subnets.private.ids
-  private_subnet_cidrs   = local.private_subnet_cidrs
+resource "aws_apigatewayv2_integration" "this" {
+  api_id             = aws_apigatewayv2_api.this.id
+  integration_type   = "HTTP_PROXY"
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.this.id
+  integration_method = "ANY"
+  integration_uri    = var.load_balancer_listener_arn
+
+  payload_format_version = "1.0"
+}
+
+resource "aws_apigatewayv2_route" "this" {
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = "ANY /{proxy+}"
+
+  target = "integrations/${aws_apigatewayv2_integration.this.id}"
+}
+
+resource "aws_apigatewayv2_stage" "this" {
+  api_id      = aws_apigatewayv2_api.this.id
+  name        = var.api_stage_name
+  auto_deploy = true
+}
+
+resource "aws_apigatewayv2_api" "this" {
+  name          = "${var.project_name}-api"
+  protocol_type = "HTTP"
 }

@@ -1,0 +1,98 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      aws_account_id:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+      aws_role:
+        required: true
+        type: string
+    outputs:
+      task_definition_arn:
+        description: "The ARN of the deployed task definition"
+        value: ${{ jobs.task.outputs.task_definition_arn }}
+      task_definition_revision:
+        description: "The revision of the deployed task definition"
+        value: ${{ jobs.task.outputs.task_definition_revision }}
+      image_uri:
+        value: ${{ jobs.image.outputs.image_uri }}
+      app_specs_bucket:
+        value: ${{ jobs.task.outputs.app_specs_bucket }}
+
+permissions:
+  id-token: write
+  contents: read
+      
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.set-image-uri.outputs.image_uri }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Build and push detected changes
+        id: build-image
+        uses: ./.github/actions/build_image
+        with:
+          aws_account_id: ${{ inputs.aws_account_id }}
+          aws_region: ${{ inputs.aws_region }}
+          ecr_repository_name: ${{ github.event.repository.name }}
+
+      - name: Set image_uri output
+        id: set-image-uri
+        run: |
+          echo "image_uri=${{ env.IMAGE_URI }}" >> $GITHUB_OUTPUT
+
+  task:
+    needs: image
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_image_uri: ${{ needs.image.outputs.image_uri }}
+      TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
+    outputs:
+      task_definition_arn: ${{ steps.set-envs.outputs.TASK_DEFINITION_ARN }}
+      task_definition_revision: ${{ steps.set-envs.outputs.TASK_DEFINITION_REVISION }}
+      app_specs_bucket: ${{ steps.set-envs.outputs.APP_SPECS_BUCKET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/task
+          terraform init
+    
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/task
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+
+      - name: Set env vars
+        id: set-envs
+        shell: bash
+        run: |
+          cd tf/task
+          TASK_DEFINITION_ARN=$(terraform output -raw task_definition_arn)
+          TASK_DEFINITION_REVISION=$(terraform output -raw task_definition_revision)
+          APP_SPECS_BUCKET=$(terraform output -raw app_specs_bucket)
+          echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_REVISION=$TASK_DEFINITION_REVISION" >> $GITHUB_OUTPUT
+          echo "APP_SPECS_BUCKET=$APP_SPECS_BUCKET" >> $GITHUB_OUTPUT

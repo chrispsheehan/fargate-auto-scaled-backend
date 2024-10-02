@@ -1,0 +1,79 @@
+name: Init
+
+on:
+  push:
+    branches:
+      - 'blue-green-deploy'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ecs-check:
+    runs-on: ubuntu-latest
+    outputs:
+      service_exists: ${{ steps.set-output.outputs.service_exists }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check ECS Service
+        id: check-ecs-service
+        uses: ./.github/actions/check_svc
+        with:
+          aws_region: ${{ vars.aws_region }}
+          aws_role: ${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
+          tfvars_file: "tf/variables.tfvars"
+
+      - name: Set output for service existence
+        id: set-output
+        shell: bash
+        run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
+
+  ecr:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.aws_region }}
+          role-to-assume: arn:aws:iam::${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/ecr
+          terraform init
+    
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/ecr
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+
+  build:
+    needs: 
+      - ecs-check
+      - ecr
+    if: ${{ needs.ecs-check.outputs.service_exists == 'false' }}
+    uses: ./.github/workflows/build.yml
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      aws_region: ${{ vars.AWS_REGION }}
+      aws_role: ${{ vars.AWS_ROLE }}
+
+  setup:
+    needs:
+      - ecs-check
+      - build
+    if: ${{ needs.ecs-check.outputs.service_exists == 'false' }}
+    uses: ./.github/workflows/setup.yml
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      aws_region: ${{ vars.AWS_REGION }}
+      aws_role: ${{ vars.AWS_ROLE }}
+      task_definition_arn: ${{ needs.build.outputs.task_definition_arn }}

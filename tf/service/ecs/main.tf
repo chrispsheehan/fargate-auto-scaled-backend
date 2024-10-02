@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "cluster" {
-  name = "${var.project_name}-cluster"
+  name = var.project_name
 }
 
 resource "aws_security_group" "ecs_sg" {
@@ -10,7 +10,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port       = 0
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [var.load_balancer_security_group_id]
+    security_groups = [var.lb_security_group_id]
   }
 
   egress {
@@ -23,20 +23,14 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 resource "aws_ecs_service" "ecs" {
-  name                  = var.project_name
-  launch_type           = "FARGATE"
-  cluster               = aws_ecs_cluster.cluster.id
-  task_definition       = var.task_definition_arn
-  desired_count         = var.initial_task_count
-  wait_for_steady_state = true
-
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
+  name            = var.project_name
+  launch_type     = "FARGATE"
+  cluster         = aws_ecs_cluster.cluster.id
+  task_definition = var.task_definition_arn
+  desired_count   = var.initial_task_count
 
   deployment_controller {
-    type = "ECS"
+    type = "CODE_DEPLOY"
   }
 
   network_configuration {
@@ -51,12 +45,16 @@ resource "aws_ecs_service" "ecs" {
     container_port   = var.container_port
   }
 
-  # Auto-rollback and rolling deployment settings
-  deployment_minimum_healthy_percent = 50  # 50% of tasks must remain healthy during deployment
-  deployment_maximum_percent         = 200 # Can scale up to 200% during the deployment process
-
   # Health check grace period (in seconds) for the new tasks
   health_check_grace_period_seconds = 60
 
+  # Rolling deployment settings for ECS
+  deployment_minimum_healthy_percent = 50  # 50% of tasks must remain healthy during deployment
+  deployment_maximum_percent         = 200 # Can scale up to 200% during the deployment process
+
+  # Disable force new deployment because CodeDeploy will handle it
   force_new_deployment = false
+
+  # Disable wait for steady state when using CodeDeploy
+  wait_for_steady_state = false
 }

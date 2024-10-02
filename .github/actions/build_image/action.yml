@@ -8,6 +8,9 @@ inputs:
   aws_region:
     description: 'ECR aws region'
     required: true
+  ecr_repository_name:
+    description: 'ECR repo name'
+    required: true
 
 runs:
   using: 'composite'
@@ -20,10 +23,10 @@ runs:
             - 'src/**'
       
     - name: Check if ECR repository is empty
-      id: should_build
+      id: check_should_build
       shell: bash
       run: |
-        IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ github.event.repository.name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
+        IMAGE_COUNT=$(aws ecr describe-images --repository-name ${{ inputs.ecr_repository_name }} --region ${{ inputs.aws_region }} --query 'imageDetails | length(@)' --output text)
         echo Image count: "$IMAGE_COUNT"
         if [[ "${{ steps.changes.outputs.src }}" == "true" || "$IMAGE_COUNT" -eq 0 ]]; then
           echo "Either src changed or ECR is empty"
@@ -43,7 +46,7 @@ runs:
       name: Set variables
       shell: bash
       run: |
-        echo "LOCAL_IMAGE=${{ github.event.repository.name }}:local" >> $GITHUB_ENV
+        echo "LOCAL_IMAGE=${{ inputs.ecr_repository_name }}:local" >> $GITHUB_ENV
         echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
 
     - if: env.SHOULD_BUILD == 'true'
@@ -51,11 +54,24 @@ runs:
       shell: bash
       run: |
         docker build . -t $LOCAL_IMAGE
-        docker tag $LOCAL_IMAGE ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
+        docker tag $LOCAL_IMAGE ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$IMAGE_TAG
 
     - if: env.SHOULD_BUILD == 'true'
       name: Push Docker Image to ECR
       shell: bash
       run: |
-        aws ecr get-login-password --region ${{ env.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
-        docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ github.event.repository.name }}:$IMAGE_TAG
+        aws ecr get-login-password --region ${{ inputs.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
+        docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$IMAGE_TAG
+        IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$IMAGE_TAG"
+        echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+        echo Image:$IMAGE_URI
+
+    - if: env.SHOULD_BUILD != 'true'
+      name: Get Latest ECR Image Tag
+      shell: bash
+      run: |
+        LATEST_TAG=$(aws ecr describe-images --repository-name ${{ inputs.ecr_repository_name }} \
+                    --region ${{ inputs.aws_region }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+        IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$LATEST_TAG"
+        echo "$IMAGE_TAG=$LATEST_TAG" >> $GITHUB_ENV
+        echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
