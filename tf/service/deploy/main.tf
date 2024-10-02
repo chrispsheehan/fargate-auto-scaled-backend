@@ -4,7 +4,7 @@ resource "aws_codedeploy_app" "ecs_app" {
 }
 
 resource "aws_iam_role" "this" {
-  name               = "${var.project_name}-codedeploy_role"
+  name               = "${var.project_name}-codedeploy-role"
   assume_role_policy = data.aws_iam_policy_document.codedeploy_assume_role_policy.json
 }
 
