@@ -27,16 +27,22 @@ module "load_balancer" {
 module "deploy" {
   source = "./deploy"
 
-  project_name          = var.project_name
-  codedeploy_app_name   = var.codedeploy_app_name
-  codedeploy_group_name = var.codedeploy_group_name
-  app_specs_bucket      = var.app_specs_bucket
-  region                = var.region
-  cluster_name          = module.ecs.cluster_name
-  service_name          = module.ecs.service_name
-  lb_listener_arn       = module.load_balancer.listener_arn
-  lb_blue_target_group  = module.load_balancer.blue_target_group
-  lb_green_target_group = module.load_balancer.green_target_group
+  project_name                         = var.project_name
+  appautoscaling_policy_scale_up_arn   = module.auto_scaling.scale_up_arn
+  appautoscaling_policy_scale_down_arn = module.auto_scaling.scale_down_arn
+  codedeploy_app_name                  = var.codedeploy_app_name
+  codedeploy_group_name                = var.codedeploy_group_name
+  app_specs_bucket                     = var.app_specs_bucket
+  region                               = var.region
+  cluster_name                         = module.ecs.cluster_name
+  cluster_arn                          = module.ecs.cluster_arn
+  service_name                         = module.ecs.service_name
+  load_balancer_arn                    = module.load_balancer.load_balancer_arn
+  lb_listener_arn                      = module.load_balancer.listener_arn
+  lb_blue_target_group                 = module.load_balancer.blue_target_group
+  lb_blue_target_group_arn             = module.load_balancer.blue_target_group_arn
+  lb_green_target_group                = module.load_balancer.green_target_group
+  lb_green_target_group_arn            = module.load_balancer.green_target_group_arn
 }
 
 module "auto_scaling" {
