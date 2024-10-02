@@ -112,6 +112,6 @@ jobs:
               exit 1
             else
               echo "Deployment is in progress..."
-              sleep 30
+              sleep 10
             fi
           done
