@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "elb_policy" {
       "elasticloadbalancing:DescribeTargetGroups",
       "elasticloadbalancing:DescribeRules"
     ]
-    effect = "Allow"
+    effect    = "Allow"
     resources = ["*"]
   }
 }

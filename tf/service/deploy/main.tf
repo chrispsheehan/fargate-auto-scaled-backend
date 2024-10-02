@@ -75,7 +75,7 @@ resource "aws_iam_role_policy_attachment" "attach_passrole_policy" {
 }
 
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name = aws_codedeploy_app.ecs_app.name
+  app_name               = aws_codedeploy_app.ecs_app.name
   deployment_config_name = var.deployment_config_name
   deployment_group_name  = var.codedeploy_group_name
   service_role_arn       = aws_iam_role.this.arn
