@@ -32,6 +32,7 @@ module "deploy" {
   appautoscaling_policy_scale_down_arn = module.auto_scaling.scale_down_arn
   codedeploy_app_name                  = var.codedeploy_app_name
   codedeploy_group_name                = var.codedeploy_group_name
+  deployment_config_name               = var.codedeploy_deployment_config_name
   app_specs_bucket                     = var.app_specs_bucket
   region                               = var.region
   cluster_name                         = module.ecs.cluster_name

@@ -49,6 +49,10 @@ jobs:
           echo "Extracted project_name: $PROJECT_NAME"
           echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
 
+          DEPLOYMENT_CONFIG=$(grep 'deployment_config' "${{ env.TF_VAR_FILE }}" | sed 's/.*= "\(.*\)"/\1/')
+          echo "Extracted deployment_confi: $DEPLOYMENT_CONFIG"
+          echo "DEPLOYMENT_CONFIG=$DEPLOYMENT_CONFIG" >> $GITHUB_OUTPUT
+
       - name: Prepare AppSpec File
         run: |
           sed -i 's|{{TASK_VERSION}}|${{ needs.code.outputs.task_definition_revision }}|g' ${{ env.APP_SPEC_FILE }}
@@ -65,12 +69,13 @@ jobs:
         env:
           APP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_APP_NAME }}
           GROUP_NAME: ${{ steps.read-vars.outputs.CODE_DEPLOY_GROUP_NAME }}
+          DEPLOYMENT_CONFIG: ${{ steps.read-vars.outputs.DEPLOYMENT_CONFIG }}
         run: |
           echo "Creating CodeDeploy deployment"
           DEPLOYMENT_OUTPUT=$(aws deploy create-deployment \
             --application-name "$APP_NAME" \
             --deployment-group-name "$GROUP_NAME" \
-            --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
+            --deployment-config-name $DEPLOYMENT_CONFIG \
             --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ needs.code.outputs.app_specs_bucket}}\",\"key\":\"${{ needs.code.outputs.task_definition_revision }}-${{ env.APP_SPEC_FILE }}\",\"bundleType\":\"YAML\"}}" \
             --region ${{ vars.AWS_REGION }})
           DEPLOYMENT_ID=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.deploymentId')

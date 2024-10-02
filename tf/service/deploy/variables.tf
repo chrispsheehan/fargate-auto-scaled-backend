@@ -6,6 +6,11 @@ variable "region" {
   type = string
 }
 
+variable "deployment_config_name" {
+  description = "The deployment configuration strategy for CodeDeploy."
+  type        = string
+}
+
 variable "cluster_name" {
   type = string
 }
