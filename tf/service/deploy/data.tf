@@ -21,19 +21,14 @@ data "aws_iam_policy_document" "elb_policy" {
   statement {
     actions = [
       "elasticloadbalancing:RegisterTargets",
-      "elasticloadbalancing:DeregisterTargets",
       "elasticloadbalancing:ModifyTargetGroup",
-      "elasticloadbalancing:DescribeTargetGroups",
-      "elasticloadbalancing:CreateListener",
-      "elasticloadbalancing:DeleteListener",
-      "elasticloadbalancing:ModifyListener",
-      "elasticloadbalancing:DescribeListeners",
-      "elasticloadbalancing:DescribeLoadBalancers",
-      "elasticloadbalancing:DescribeTargetHealth",
-      "elasticloadbalancing:CreateRule",
-      "elasticloadbalancing:DeleteRule",
       "elasticloadbalancing:ModifyRule",
-      "elasticloadbalancing:DescribeRules"
+      "elasticloadbalancing:ModifyListener",
+      "elasticloadbalancing:DeregisterTargets",
+      "elasticloadbalancing:DeleteRule",
+      "elasticloadbalancing:DeleteListener",
+      "elasticloadbalancing:CreateRule",
+      "elasticloadbalancing:CreateListener"
     ]
     effect = "Allow"
     resources = [
@@ -41,6 +36,18 @@ data "aws_iam_policy_document" "elb_policy" {
       var.lb_green_target_group_arn,
       var.lb_blue_target_group_arn
     ]
+  }
+
+  statement {
+    actions = [
+      "elasticloadbalancing:DescribeListeners",
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeRules"
+    ]
+    effect = "Allow"
+    resources = ["*"]
   }
 }
 
