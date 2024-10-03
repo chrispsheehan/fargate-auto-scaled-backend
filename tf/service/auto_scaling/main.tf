@@ -21,7 +21,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
       metric_interval_lower_bound = 0
     }
 
-    cooldown                = 60
+    cooldown                = local.cooldown_seconds
     metric_aggregation_type = "Average"
   }
 }
@@ -41,7 +41,7 @@ resource "aws_appautoscaling_policy" "scale_down" {
       metric_interval_lower_bound = 0
     }
 
-    cooldown                = 60
+    cooldown                = local.cooldown_seconds
     metric_aggregation_type = "Average"
   }
 }
