@@ -32,37 +32,35 @@ app.get(`/${basePath}/host`, (req, res) => {
 
 app.get(`/${basePath}/stress-cpu/:percent/:duration`, (req, res) => {
   const percent = parseInt(req.params.percent, 10);
-  const duration = parseInt(req.params.duration, 10); // in seconds
+  const duration = parseInt(req.params.duration, 10);
+  const hostname = os.hostname();
 
   if (percent < 0 || percent > 100) {
     return res.status(400).json({ error: "Percent must be between 0 and 100" });
   }
 
-  const startTime = Date.now();
-  const endTime = startTime + duration * 1000;
+  const workTime = (percent / 100) * 1000;
+  const totalDuration = duration * 1000;
+  const endTime = Date.now() + totalDuration;
 
-  const cpuIntensiveTask = () => {
-    // Simulate CPU-intensive task for the specified duration and percentage
-    while (Date.now() < endTime) {
-      // Work for `percent` of the time, then idle for the remaining `100 - percent` time
-      const workEndTime = Date.now() + (percent / 100) * 1000;
-      while (Date.now() < workEndTime) {
-        // Simulating work by doing empty loops
-        Math.random();
-      }
+  const simulateLoad = () => {
+    if (Date.now() >= endTime) {
+      clearInterval(interval);
+      return;
+    }
 
-      // Idle for the remaining time (simulate CPU usage lower than 100%)
-      const idleEndTime = Date.now() + ((100 - percent) / 100) * 1000;
-      while (Date.now() < idleEndTime) {
-        // Idle - not using CPU
-      }
+    const workEndTime = Date.now() + workTime;
+    while (Date.now() < workEndTime) {
+      Math.random();
     }
   };
 
-  // Run the CPU-intensive task in a non-blocking way
-  setTimeout(cpuIntensiveTask, 0);
+  const interval = setInterval(simulateLoad, 1000);
 
-  res.status(200).json({ message: `Simulating ${percent}% CPU usage for ${duration} seconds` });
+  res.status(200).json({ 
+    message: `Simulating ${percent}% CPU usage for ${duration} seconds`,
+    host: hostname
+  });
 });
 
 console.log(`Listening on http://localhost:${port}`)
