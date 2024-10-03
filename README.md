@@ -46,7 +46,7 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ```sh
 docker build -t express-app .
-docker run -i -p 3000:3000 express-app
+docker run -i -e BASE_PATH=dev -p 3000:3000 express-app
 ```
 
 ## terraform
