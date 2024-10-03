@@ -17,6 +17,8 @@ jobs:
       aws_region: ${{ vars.AWS_REGION }}
       aws_role: ${{ vars.AWS_ROLE }}
 
+# check to see if task arn is aleady added?
+
   deploy:
     needs: code
     runs-on: ubuntu-latest
