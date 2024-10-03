@@ -23,11 +23,9 @@ variable "auto_scale_cool_down_period" {
 }
 
 variable "cpu_scale_up_threshold" {
-  description = "70 for 70% CPU"
   type = number
 }
 
 variable "cpu_scale_down_threshold" {
-  description = "30 for 30% CPU"
   type = number
 }

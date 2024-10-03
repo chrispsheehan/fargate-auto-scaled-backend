@@ -57,21 +57,21 @@ variable "max_scaled_task_count" {
 }
 
 variable "auto_scale_cool_down_period" {
-  description = "Amount of time to wait between autoscaling actoins"
+  description = "Amount of time to wait between autoscaling actions - seconds"
   type        = number
   default     = 30
 }
 
-variable "sqs_scale_up_trigger" {
-  description = "The average number of SQS messages in the queue required to trigger scale UP"
+variable "cpu_scale_up_threshold" {
+  description = "Amount of CPU usage to trigger scale UP - 70 for 70% CPU"
   type        = number
-  default     = 4
+  default     = 50
 }
 
-variable "sqs_scale_down_trigger" {
-  description = "The average number of SQS messages in the queue required to trigger scale DOWN"
+variable "cpu_scale_down_threshold" {
+  description = "Amount of CPU usage to trigger scale DOWN - 30 for 30% CPU"
   type        = number
-  default     = 2
+  default     = 20
 }
 
 variable "max_az" {
