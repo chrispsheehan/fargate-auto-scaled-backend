@@ -27,6 +27,7 @@ variable "cpu_scale_up_threshold" {
   type = number
 }
 
-variable "sqs_scale_down_trigger" {
+variable "cpu_scale_down_threshold" {
+  description = "30 for 30% CPU"
   type = number
 }

@@ -70,7 +70,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   namespace           = "AWS/ECS"
   period              = var.auto_scale_cool_down_period
   statistic           = "Average"
-  threshold           = var.cpu_scale_up_threshold
+  threshold           = var.cpu_scale_down_threshold
   alarm_actions       = [aws_appautoscaling_policy.scale_down.arn]
   dimensions = {
     ClusterName = var.ecs_cluster_name
