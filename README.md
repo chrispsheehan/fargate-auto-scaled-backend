@@ -53,7 +53,8 @@ Required deployment iam privileges.
     "logs:*",
     "sqs:*",
     "cloudwatch:*",
-    "apigateway:*"
+    "apigateway:*",
+    "codedeploy:*"
 ]
 ```
 
@@ -62,8 +63,5 @@ Required deployment iam privileges.
 Required github action variables.
 - `AWS_ACCOUNT_ID`
 - `AWS_REGION`
-- `AWS_ROLE` role with deployment privileges
+- `AWS_ROLE` role with above deployment privileges
 - `DOCKERHUB_USERNAME`
-
-Required github action secrets.
-- `DOCKERHUB_PASSWORD`
