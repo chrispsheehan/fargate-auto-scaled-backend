@@ -22,7 +22,8 @@ variable "auto_scale_cool_down_period" {
   type = number
 }
 
-variable "sqs_scale_up_trigger" {
+variable "cpu_scale_up_threshold" {
+  description = "70 for 70% CPU"
   type = number
 }
 

@@ -64,7 +64,6 @@ Required deployment iam privileges.
     "elasticloadbalancing:*",
     "application-autoscaling:*",
     "logs:*",
-    "sqs:*",
     "cloudwatch:*",
     "apigateway:*",
     "codedeploy:*"
