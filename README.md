@@ -1,14 +1,27 @@
 # fargate-auto-scaled-backend
 
+A load balanced and auto-scaled api running on AWS ECS.
+
 ## ci
+
+`Init` workflow
+
+1. Query AWS for existing service - do not run if found.
+2. Create ECR repository.
+3. Push a new *initial* image to ecr.
+4. Create a new task definition is created.
+5. The new task definition is deployed to the ecs service.
+6. The *blue* target group is deployed as the default.
+
+*note* this cannot be run after a Deploy workflow [tech debt]
 
 `Deploy` workflow
 
-1. Create or check ECR repository is found.
-2. A new image is pushed to ecr upon changes detected in `/src` and subsequently a new task definition is created.
-3. The new task definition is deployed to the ecs service.
-4. If `/health` returns `200` via target group the task deployment it complete.
-5. If `/health` returns not `200` then ecs will revert to the last working task definition.
+1. Check ECR repository is found.
+2. New image is pushed to ecr upon changes detected in `/src`, `Dockerfile` or `package.json`.
+3. Subsequently a new task definition is created.
+4. Codedeploy deployment is created and status is monitored.
+5. New *green* target group and containers created. When health traffic is switched over to them.
 
 `Destroy` workflow
 
@@ -64,4 +77,3 @@ Required github action variables.
 - `AWS_ACCOUNT_ID`
 - `AWS_REGION`
 - `AWS_ROLE` role with above deployment privileges
-- `DOCKERHUB_USERNAME`
