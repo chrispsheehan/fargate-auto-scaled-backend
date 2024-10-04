@@ -44,9 +44,9 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ## cpu autoscaling
 
-ECS will auto-scale when CPU reaching upper and lower limits.
+ECS will auto-scale when CPU reaching upper and lower limits. CPU is for entire ECS service.
 
-Simulate a load on the ECS service with `curl [url]/dev/stress-cpu/50/10`. This example will run 50% CPU load for 10 seconds.
+Simulate a load on the ECS service with `curl [url]/dev/stress-cpu/50/10`. This example will run 50% CPU load for 10 seconds on .
 
 This will trigger a cloudwatch alarm which will in turn trigger the auto-scaling rule(s).
 
