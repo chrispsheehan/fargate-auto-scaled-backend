@@ -42,11 +42,29 @@ A load balanced and auto-scaled api running on AWS ECS.
 }
 ```
 
+## cpu autoscaling
+
+ECS will auto-scale when CPU reaching upper and lower limits. CPU is for entire ECS service.
+
+Simulate a load on the ECS service with `curl [url]/dev/stress-cpu/50/10`. This example will run 50% CPU load for 10 seconds on .
+
+This will trigger a cloudwatch alarm which will in turn trigger the auto-scaling rule(s).
+
+### setup 
+
+In `tf/service` the below variables are to be considered.
+
+- `cpu_scale_up_threshold`: percentage CPU load to trigger a scale up of tasks.
+
+- `cpu_scale_down_threshold`: percentage CPU load to trigger a scale down of tasks.
+
+- `max_scaled_task_count`: maximum amount of tasks to be allowed.
+
 ## docker
 
 ```sh
 docker build -t express-app .
-docker run -i -p 3000:3000 express-app
+docker run -i -e BASE_PATH=dev -p 3000:3000 express-app
 ```
 
 ## terraform
@@ -64,7 +82,6 @@ Required deployment iam privileges.
     "elasticloadbalancing:*",
     "application-autoscaling:*",
     "logs:*",
-    "sqs:*",
     "cloudwatch:*",
     "apigateway:*",
     "codedeploy:*"

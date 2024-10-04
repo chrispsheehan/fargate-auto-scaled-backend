@@ -1,7 +1,3 @@
-resource "aws_sqs_queue" "target_queue" {
-  name = "${var.project_name}-queue"
-}
-
 resource "aws_appautoscaling_target" "ecs" {
   max_capacity       = var.max_scaled_task_count
   min_capacity       = var.initial_task_count
@@ -25,7 +21,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
       metric_interval_lower_bound = 0
     }
 
-    cooldown                = 60
+    cooldown                = var.auto_scale_cool_down_period
     metric_aggregation_type = "Average"
   }
 }
@@ -45,7 +41,7 @@ resource "aws_appautoscaling_policy" "scale_down" {
       metric_interval_lower_bound = 0
     }
 
-    cooldown                = 60
+    cooldown                = var.auto_scale_cool_down_period
     metric_aggregation_type = "Average"
   }
 }
@@ -53,29 +49,31 @@ resource "aws_appautoscaling_policy" "scale_down" {
 resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
   alarm_name          = "${var.project_name}-scale-up-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 2
-  metric_name         = "ApproximateNumberOfMessagesVisible"
-  namespace           = "AWS/SQS"
+  evaluation_periods  = local.evaluation_periods
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
   period              = var.auto_scale_cool_down_period
   statistic           = "Average"
-  threshold           = var.sqs_scale_up_trigger
+  threshold           = var.cpu_scale_up_threshold
   alarm_actions       = [aws_appautoscaling_policy.scale_up.arn]
   dimensions = {
-    QueueName = aws_sqs_queue.target_queue.name
+    ClusterName = var.ecs_cluster_name
+    ServiceName = var.ecs_name
   }
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   alarm_name          = "${var.project_name}-scale-down-alarm"
-  comparison_operator = "LessThanOrEqualToThreshold"
-  evaluation_periods  = 2
-  metric_name         = "ApproximateNumberOfMessagesVisible"
-  namespace           = "AWS/SQS"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = local.evaluation_periods
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
   period              = var.auto_scale_cool_down_period
   statistic           = "Average"
-  threshold           = var.sqs_scale_down_trigger
+  threshold           = var.cpu_scale_down_threshold
   alarm_actions       = [aws_appautoscaling_policy.scale_down.arn]
   dimensions = {
-    QueueName = aws_sqs_queue.target_queue.name
+    ClusterName = var.ecs_cluster_name
+    ServiceName = var.ecs_name
   }
 }

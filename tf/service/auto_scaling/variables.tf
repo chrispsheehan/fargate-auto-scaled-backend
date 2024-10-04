@@ -22,10 +22,10 @@ variable "auto_scale_cool_down_period" {
   type = number
 }
 
-variable "sqs_scale_up_trigger" {
+variable "cpu_scale_up_threshold" {
   type = number
 }
 
-variable "sqs_scale_down_trigger" {
+variable "cpu_scale_down_threshold" {
   type = number
 }
