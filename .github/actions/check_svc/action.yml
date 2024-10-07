@@ -30,8 +30,8 @@ runs:
         echo "Extracted Project Name: $PROJECT_NAME"
         echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
 
-    - name: Check if ECS cluster and service exist
-      id: check-cluster-and-service-exists
+    - name: Check if ECS cluster and service exist and get task definition ARN
+      id: check-cluster-and-service
       shell: bash
       run: |
         # Check if the ECS cluster exists and is ACTIVE
@@ -59,6 +59,19 @@ runs:
             echo "SERVICE_EXISTS=false" >> $GITHUB_ENV
           else
             echo "SERVICE_EXISTS=true" >> $GITHUB_ENV
+
+            # Retrieve the current task definition ARN
+            TASK_DEFINITION_ARN=$(aws ecs describe-services \
+              --cluster ${{ env.PROJECT_NAME }} \
+              --services ${{ env.PROJECT_NAME }} \
+              --query 'services[0].taskDefinition' \
+              --region ${{ inputs.aws_region }} \
+              --output text)
+
+            echo "TASK_DEFINITION_ARN=$TASK_DEFINITION_ARN" >> $GITHUB_ENV
           fi
         fi
 
+    - name: Output task definition ARN
+      if: env.SERVICE_EXISTS == 'true'
+      run: echo "The current task definition ARN is: ${{ env.TASK_DEFINITION_ARN }}"
