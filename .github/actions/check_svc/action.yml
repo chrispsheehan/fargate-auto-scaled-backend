@@ -74,4 +74,4 @@ runs:
 
     - name: Output task definition ARN
       if: env.SERVICE_EXISTS == 'true'
-      run: echo "The current task definition ARN is: ${{ env.TASK_DEFINITION_ARN }}"
+      run: echo "The current task definition ARN is ${{ env.TASK_DEFINITION_ARN }}"
