@@ -70,7 +70,6 @@ jobs:
     needs:
       - ecs-check
       - build
-    if: ${{ needs.ecs-check.outputs.service_exists == 'false' }}
     uses: ./.github/workflows/setup.yml
     with:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
