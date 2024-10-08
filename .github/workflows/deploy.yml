@@ -17,11 +17,37 @@ jobs:
       aws_region: ${{ vars.AWS_REGION }}
       aws_role: ${{ vars.AWS_ROLE }}
 
-# check to see if task arn is aleady added?
-
-  deploy:
+  check:
     needs: code
     runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.set-deploy-output.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check ECS Service
+        id: check-ecs-service
+        uses: ./.github/actions/check_svc
+        with:
+          aws_region: ${{ vars.aws_region }}
+          aws_role: ${{ vars.aws_account_id }}:role/${{ vars.aws_role }}
+          tfvars_file: "tf/variables.tfvars"
+  
+      - name: Set deploy condition
+        id: set-deploy-output
+        shell: bash
+        run: |
+          if [[ "${{ env.SERVICE_EXISTS }}" == "true" && "${{ env.TASK_DEFINITION_ARN }}" != "${{ needs.code.outputs.task_definition_arn }}" ]]; then
+            echo "deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    needs:
+      - code
+      - check
+    runs-on: ubuntu-latest
+    if: ${{ needs.check.outputs.deploy == 'true' }}
     env:
       TF_VAR_FILE: tf/variables.tfvars
       APP_SPEC_FILE: appspec.yaml
