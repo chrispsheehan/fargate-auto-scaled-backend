@@ -63,6 +63,7 @@ runs:
         aws ecr get-login-password --region ${{ inputs.aws_region }} | docker login --username AWS --password-stdin ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com
         docker push ${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$IMAGE_TAG
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$IMAGE_TAG"
+        echo "NEWLY BUILT Image URI is $IMAGE_URI"
         echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
         echo Image:$IMAGE_URI
 
@@ -73,5 +74,6 @@ runs:
         LATEST_TAG=$(aws ecr describe-images --repository-name ${{ inputs.ecr_repository_name }} \
                     --region ${{ inputs.aws_region }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
         IMAGE_URI="${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/${{ inputs.ecr_repository_name }}:$LATEST_TAG"
+        echo "EXISTING Image URI is $IMAGE_URI"
         echo "$IMAGE_TAG=$LATEST_TAG" >> $GITHUB_ENV
         echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
