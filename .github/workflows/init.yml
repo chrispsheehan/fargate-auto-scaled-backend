@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       service_exists: ${{ steps.set-output.outputs.service_exists }}
+      task_definition_arn: ${{ steps.set-output.outputs.task_definition_arn }}
     steps:
       - uses: actions/checkout@v4
       - name: Check ECS Service
@@ -25,7 +26,9 @@ jobs:
       - name: Set output for service existence
         id: set-output
         shell: bash
-        run: echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
+        run:  |
+          echo "service_exists=${{ env.SERVICE_EXISTS }}" >> $GITHUB_OUTPUT
+          echo "task_definition_arn=${{ env.TASK_DEFINITION_ARN }}" >> $GITHUB_OUTPUT
 
   ecr:
     runs-on: ubuntu-latest
@@ -67,10 +70,11 @@ jobs:
     needs:
       - ecs-check
       - build
-    if: ${{ needs.ecs-check.outputs.service_exists == 'false' }}
+    if: always()
     uses: ./.github/workflows/setup.yml
     with:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
       aws_region: ${{ vars.AWS_REGION }}
       aws_role: ${{ vars.AWS_ROLE }}
-      task_definition_arn: ${{ needs.build.outputs.task_definition_arn }}
+      # Conditionally use task definition ARN from check if service exists, or from build if not
+      task_definition_arn: ${{ needs.ecs-check.outputs.service_exists == 'true' && needs.ecs-check.outputs.task_definition_arn || needs.build.outputs.task_definition_arn }}
