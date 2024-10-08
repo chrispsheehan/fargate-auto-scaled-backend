@@ -70,6 +70,7 @@ jobs:
     needs:
       - ecs-check
       - build
+    if: always()
     uses: ./.github/workflows/setup.yml
     with:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
