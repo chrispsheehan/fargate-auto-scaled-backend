@@ -6,25 +6,28 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ## ci
 
-`Init` workflow
+`Init` workflow - manual trigger
 
-1. Create ECR repository.
-2. Push a new *initial* image to ecr and create a new task definition.
-3. Deploy ecs and network components.
-4. The *blue* target group is deployed as the default.
+1. **ecs-check** Query AWS for existing of service `[obtain current task arn]`.
+2. **ecr** Apply ECR and vpc endpoints.
+3. **build/image** `[if service doesn't exist]` Push a new *initial* image to ecr.
+4. **build/task** `[if service doesn't exist]` Create a new task definition is created.
+5. **setup/service** Apply ecs service, load balancer, deploy and auto-scaling.
+6. **setup/network** Apply vpc link and api gateway ingress.
 
-`Deploy` workflow
+`Deploy` workflow - push on `main` trigger
 
-1. Check ECR repository is found.
-2. New image is pushed to ecr upon changes detected in `/src`, `Dockerfile` or `package.json`.
-3. Subsequently a new task definition is created.
-4. Codedeploy deployment is created and status is monitored.
-5. New *green* target group and containers created. When health traffic is switched over.
+1. **code/image** Build image if changes to `Dockerfile`, `package.json` `src/*` detected.
+2. **code/task** Apply task definition (no changes if the same image).
+3. **check** Create a `deploy` boolean based on a new task definition (difference to current) detected.
+4. **deploy** `[if deploy=true]` Codedeploy deployment is created and status is monitored.
 
-`Destroy` workflow
+`Destroy` workflow - manual trigger
 
-1. Destroy all deployed resources.
-2. Destroy ECR repository and images.
+1. **service** Destroy ecs service, load balancer, deploy and auto-scaling resources.
+2. **network** Destroy vpc link and api gateway ingress resources.
+3. **task** Destroy task definition.
+4. **ecr** Destroy ecr and images.
 
 ## usage
 
