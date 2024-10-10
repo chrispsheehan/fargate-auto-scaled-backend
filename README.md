@@ -31,9 +31,8 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ## usage
 
-- obtain `url` from terraform outputs
+- obtain `url` from terraform - found in github action `init / setup / network outputs`
 - `curl [url]/dev/host`
-  - example response below
   
 ```sh
 {
