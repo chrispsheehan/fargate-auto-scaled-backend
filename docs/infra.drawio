@@ -140,7 +140,7 @@
           <mxGeometry x="-1114" y="-200" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="I5luprlEmF2R9hIj9thK-27" value="ECS backend" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" vertex="1" parent="1">
-          <mxGeometry x="-1000" y="-710" width="100" height="40" as="geometry" />
+          <mxGeometry x="-990" y="-690" width="100" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
