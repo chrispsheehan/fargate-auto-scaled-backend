@@ -4,15 +4,6 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="-QjtrjUzRDEMRZ5MF8oH-48" value="Subtitle text&lt;br style=&quot;font-size: 16px&quot;&gt;" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;fontSize=16;" parent="1" vertex="1">
-          <mxGeometry x="56.5" y="114.5" width="100" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="-QjtrjUzRDEMRZ5MF8oH-49" value="Label" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;fontSize=16;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="84.5" y="164.5" width="50" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="SCVMTBWpLvtzJIhz15lM-1" value="" style="line;strokeWidth=2;html=1;fontSize=14;" parent="1" vertex="1">
-          <mxGeometry x="52.5" y="139.5" width="1060" height="10" as="geometry" />
-        </mxCell>
         <mxCell id="_Xv3XyEbwycycCRV387A-2" value="" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;" parent="1" vertex="1">
           <mxGeometry x="-1123" y="-291" width="78" height="78" as="geometry" />
         </mxCell>
