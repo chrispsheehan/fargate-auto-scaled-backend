@@ -2,18 +2,16 @@
 
 A load balanced and auto-scaled api running on AWS ECS.
 
+![Infrastructure](docs/infra.drawio.png)
+
 ## ci
 
 `Init` workflow
 
-1. Query AWS for existing service - do not run if found.
-2. Create ECR repository.
-3. Push a new *initial* image to ecr.
-4. Create a new task definition is created.
-5. The new task definition is deployed to the ecs service.
-6. The *blue* target group is deployed as the default.
-
-*note* this cannot be run after a Deploy workflow [tech debt]
+1. Create ECR repository.
+2. Push a new *initial* image to ecr and create a new task definition.
+3. Deploy ecs and network components.
+4. The *blue* target group is deployed as the default.
 
 `Deploy` workflow
 
@@ -21,12 +19,12 @@ A load balanced and auto-scaled api running on AWS ECS.
 2. New image is pushed to ecr upon changes detected in `/src`, `Dockerfile` or `package.json`.
 3. Subsequently a new task definition is created.
 4. Codedeploy deployment is created and status is monitored.
-5. New *green* target group and containers created. When health traffic is switched over to them.
+5. New *green* target group and containers created. When health traffic is switched over.
 
 `Destroy` workflow
 
 1. Destroy all deployed resources.
-2. Destroy ECR repository.
+2. Destroy ECR repository and images.
 
 ## usage
 
