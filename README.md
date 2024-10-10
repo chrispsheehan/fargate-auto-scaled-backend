@@ -2,37 +2,38 @@
 
 A load balanced and auto-scaled api running on AWS ECS.
 
+![Infrastructure](docs/infra.drawio.png)
+
 ## ci
 
-`Init` workflow
+`Init` workflow - manual trigger
 
-1. Query AWS for existing service - do not run if found.
-2. Create ECR repository.
-3. Push a new *initial* image to ecr.
-4. Create a new task definition is created.
-5. The new task definition is deployed to the ecs service.
-6. The *blue* target group is deployed as the default.
+1. **ecs-check** Query AWS for existing of service `[obtain current task arn]`.
+2. **ecr** Apply ECR and vpc endpoints.
+3. **build/image** `[if service doesn't exist]` Push a new *initial* image to ecr.
+4. **build/task** `[if service doesn't exist]` Create a new task definition is created.
+5. **setup/service** Apply ecs service, load balancer, deploy and auto-scaling.
+6. **setup/network** Apply vpc link and api gateway ingress.
 
-*note* this cannot be run after a Deploy workflow [tech debt]
+`Deploy` workflow - push on `main` trigger
 
-`Deploy` workflow
+1. **code/image** Build image if changes to `Dockerfile`, `package.json` `src/*` detected.
+2. **code/task** Apply task definition (no changes if the same image).
+3. **check** Create a `deploy` boolean based on a new task definition (difference to current) detected.
+4. **deploy** `[if deploy=true]` Codedeploy deployment is created and status is monitored.
+5. A *blue/green* deployment takes place.
 
-1. Check ECR repository is found.
-2. New image is pushed to ecr upon changes detected in `/src`, `Dockerfile` or `package.json`.
-3. Subsequently a new task definition is created.
-4. Codedeploy deployment is created and status is monitored.
-5. New *green* target group and containers created. When health traffic is switched over to them.
+`Destroy` workflow - manual trigger
 
-`Destroy` workflow
-
-1. Destroy all deployed resources.
-2. Destroy ECR repository.
+1. **service** Destroy ecs service, load balancer, deploy and auto-scaling resources.
+2. **network** Destroy vpc link and api gateway ingress resources.
+3. **task** Destroy task definition.
+4. **ecr** Destroy ecr and images.
 
 ## usage
 
-- obtain `url` from terraform outputs
+- obtain `url` from terraform - found in github action `init / setup / network outputs`
 - `curl [url]/dev/host`
-  - example response below
   
 ```sh
 {
