@@ -62,7 +62,7 @@ variable "auto_scale_cool_down_period" {
   default     = 60
 
   validation {
-    condition     = var.max_scaled_task_count >= 60
+    condition     = var.auto_scale_cool_down_period >= 60
     error_message = "Must be a minimum of 60s to match ECS CPUUtilization metric's reporting interval"
   }
 }
