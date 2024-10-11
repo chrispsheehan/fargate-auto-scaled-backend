@@ -14,10 +14,11 @@ A load balanced and auto-scaled api running on AWS ECS.
 4. **build/task** `[if service doesn't exist]` Create a new task definition is created.
 5. **setup/service** Apply ecs service, load balancer, deploy and auto-scaling.
 6. **setup/network** Apply vpc link and api gateway ingress.
+7. **test** Basic check on the API `/host` endpoint.
 
 `Deploy` workflow - push on `main` trigger
 
-1. **code/image** Build image if changes to `Dockerfile`, `package.json` `src/*` detected.
+1. **code/image** Build image if changes to `src/*` detected.
 2. **code/task** Apply task definition (no changes if the same image).
 3. **check** Create a `deploy` boolean based on a new task definition (difference to current) detected.
 4. **deploy** `[if deploy=true]` Codedeploy deployment is created and status is monitored.
@@ -47,9 +48,13 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ECS will auto-scale when CPU reaching upper and lower limits. CPU is for entire ECS service.
 
-Simulate a load on the ECS service with `curl [url]/dev/stress-cpu/50/10`. This example will run 50% CPU load for 10 seconds on .
+Initially, the `scale-down-alarm` cloudwatch alarm state will be `In Alarm` as CPU will be < scale down threshold. **This is expected**.
 
-This will trigger a cloudwatch alarm which will in turn trigger the auto-scaling rule(s).
+Simulate a load on the ECS service with `curl [URL]/dev/stress-cpu/75/120`. This example will run 75% CPU load for 120 seconds.
+
+After that load has completed and the =< 1 minute cool off period. This will trigger a cloudwatch alarm which will in turn trigger the auto-scaling rule(s).
+
+Once that load has finished - after the 120 seconds - the scale down alarm will be triggered and the tasks scaled back down.
 
 ### setup 
 

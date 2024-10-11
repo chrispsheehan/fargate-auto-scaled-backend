@@ -64,7 +64,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
 
 resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   alarm_name          = "${var.project_name}-scale-down-alarm"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
+  comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = local.evaluation_periods
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"

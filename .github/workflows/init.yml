@@ -78,3 +78,19 @@ jobs:
       aws_role: ${{ vars.AWS_ROLE }}
       # Conditionally use task definition ARN from check if service exists, or from build if not
       task_definition_arn: ${{ needs.ecs-check.outputs.service_exists == 'true' && needs.ecs-check.outputs.task_definition_arn || needs.build.outputs.task_definition_arn }}
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo url
+        run: echo url is ${{ needs.setup.outputs.api_invoke_url }}
+      - name: Check if API returns 200
+        run: |
+          STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" ${{ needs.setup.outputs.api_invoke_url }}/host)
+          if [ "$STATUS_CODE" -eq 200 ]; then
+            echo "API is working correctly. Status code: $STATUS_CODE"
+          else
+            echo "API test failed. Status code: $STATUS_CODE"
+            exit 1
+          fi
