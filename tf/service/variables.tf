@@ -57,9 +57,14 @@ variable "max_scaled_task_count" {
 }
 
 variable "auto_scale_cool_down_period" {
-  description = "Amount of time to wait between autoscaling actions - seconds"
+  description = "Amount of time to wait between autoscaling actions - seconds."
   type        = number
-  default     = 30
+  default     = 60
+
+  validation {
+    condition     = var.max_scaled_task_count >= 60
+    error_message = "Must be a minimum of 60s to match ECS CPUUtilization metric's reporting interval"
+  }
 }
 
 variable "cpu_scale_up_threshold" {
