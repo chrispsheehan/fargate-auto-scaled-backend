@@ -1,3 +1,3 @@
 locals {
-  evaluation_periods = 2
+  evaluation_periods = 1
 }
