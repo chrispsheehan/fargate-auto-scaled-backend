@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'live-usage'
 
 permissions:
   id-token: write
