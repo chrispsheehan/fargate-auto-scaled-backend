@@ -38,6 +38,8 @@ resource "aws_lb_target_group" "tg_blue" {
 
   target_type = "ip"
 
+  deregistration_delay = local.deregistration_delay
+
   health_check {
     interval            = 10
     path                = "/health"
@@ -56,6 +58,8 @@ resource "aws_lb_target_group" "tg_green" {
   vpc_id   = var.private_vpc_id
 
   target_type = "ip"
+
+  deregistration_delay = local.deregistration_delay
 
   health_check {
     interval            = 10
