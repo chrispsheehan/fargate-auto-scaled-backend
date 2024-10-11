@@ -64,13 +64,13 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
 
 resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   alarm_name          = "${var.project_name}-scale-down-alarm"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
+  comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = local.evaluation_periods
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = var.auto_scale_cool_down_period
   statistic           = "Average"
-  threshold           = var.cpu_scale_down_threshold
+  threshold           = var.cpu_scale_up_threshold
   alarm_actions       = [aws_appautoscaling_policy.scale_down.arn]
   dimensions = {
     ClusterName = var.ecs_cluster_name
