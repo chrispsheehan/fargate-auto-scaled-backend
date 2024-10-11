@@ -18,7 +18,7 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 `Deploy` workflow - push on `main` trigger
 
-1. **code/image** Build image if changes to `Dockerfile`, `package.json` `src/*` detected.
+1. **code/image** Build image if changes to `src/*` detected.
 2. **code/task** Apply task definition (no changes if the same image).
 3. **check** Create a `deploy` boolean based on a new task definition (difference to current) detected.
 4. **deploy** `[if deploy=true]` Codedeploy deployment is created and status is monitored.
