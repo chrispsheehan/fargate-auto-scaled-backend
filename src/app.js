@@ -26,7 +26,7 @@ app.get(`/${basePath}/host`, (req, res) => {
     message: `Request handled by backend at ${currentTime}`,
     imageUri: image,
     hostname: hostname,
-    animal: "squirrel"
+    animal: "badger"
   });
 });
 
