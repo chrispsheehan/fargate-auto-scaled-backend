@@ -38,13 +38,7 @@ resource "aws_appautoscaling_policy" "scale_down" {
 
     step_adjustment {
       scaling_adjustment          = -1
-      metric_interval_lower_bound = 0
-      metric_interval_upper_bound = 20
-    }
-
-    step_adjustment {
-      scaling_adjustment          = -2
-      metric_interval_lower_bound = 20
+      metric_interval_upper_bound = 0
     }
 
     cooldown                = var.auto_scale_cool_down_period
