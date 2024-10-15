@@ -36,6 +36,7 @@ jobs:
       TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ vars.aws_region }}

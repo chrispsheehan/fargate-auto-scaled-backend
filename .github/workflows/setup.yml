@@ -36,6 +36,7 @@ jobs:
       lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
     steps:
       - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -74,6 +75,7 @@ jobs:
       api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
     steps:
       - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

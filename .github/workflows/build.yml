@@ -66,6 +66,7 @@ jobs:
       app_specs_bucket: ${{ steps.set-envs.outputs.APP_SPECS_BUCKET }}
     steps:
       - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ inputs.aws_region }}
