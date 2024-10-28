@@ -3,16 +3,6 @@ name: Destroy
 on:
   workflow_dispatch:
 
-env:
-  TF_VAR_task_definition_arn: "arn:aws:ecs:${{ vars.aws_region }}:123456789012:task-definition/dummy-task-definition"
-  TF_VAR_load_balancer_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:loadbalancer/app/dummy/50dc6c495c0c9188"
-  TF_VAR_lb_listener_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:listener/app/dummy/50dc6c495c0c9188/9f512f9a12e6c2ed"
-  TF_VAR_lb_blue_target_group: "dummy-target-group"
-  TF_VAR_lb_blue_target_group_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy/6d0ecf831eec9f09"
-  TF_VAR_lb_green_target_group: "dummy-target-group"
-  TF_VAR_lb_green_target_group_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy/6d0ecf831eec9f09"
-  TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
-
 permissions:
   id-token: write
   contents: read
@@ -21,7 +11,16 @@ jobs:
   service:
     runs-on: ubuntu-latest
     env:
+      TF_VAR_lb_blue_target_group: "dummy-target-group"
+      TF_VAR_lb_blue_target_group_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy/6d0ecf831eec9f09"
+      TF_VAR_lb_green_target_group: "dummy-target-group"
+      TF_VAR_lb_green_target_group_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy/6d0ecf831eec9f09"
+      TF_VAR_ecr_repository_name: ${{ github.event.repository.name }}
+      TF_VAR_lb_listener_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:listener/app/dummy/50dc6c495c0c9188/9f512f9a12e6c2ed"
+      TF_VAR_task_definition_arn: "arn:aws:ecs:${{ vars.aws_region }}:123456789012:task-definition/dummy-task-definition"
+      TF_VAR_load_balancer_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:loadbalancer/app/dummy/50dc6c495c0c9188"
       TF_VAR_load_balancer_listener_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy-target-group/1234567890123456"
+      TF_VAR_lb_security_group_id: "sg-0a1b2c3d4e5f6g7h8"
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
@@ -101,6 +100,7 @@ jobs:
 
   network:
     runs-on: ubuntu-latest
+    needs: service
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3

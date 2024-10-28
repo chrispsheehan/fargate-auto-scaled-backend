@@ -86,6 +86,7 @@ jobs:
     needs: network
     runs-on: ubuntu-latest
     env:
+      TF_VAR_lb_security_group_id: ${{ needs.network.outputs.security_group_id }}
       TF_VAR_task_definition_arn: ${{ inputs.task_definition_arn }}
       TF_VAR_load_balancer_arn: ${{ needs.network.outputs.load_balancer_arn }}
       TF_VAR_lb_listener_arn: ${{ needs.network.outputs.lb_listener_arn}}
