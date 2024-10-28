@@ -21,8 +21,3 @@ variable "api_stage_name" {
 variable "private_vpc_name" {
   type = string
 }
-
-variable "load_balancer_listener_arn" {
-  type        = string
-  description = "generated from ecs load balancer deployment"
-}
