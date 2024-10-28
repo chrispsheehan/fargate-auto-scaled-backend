@@ -35,8 +35,8 @@ jobs:
       lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
       blue_target_group_arn: ${{ steps.set-envs.outputs.BLUE_TARGET_GROUP_ARN }}
       blue_target_group: ${{ steps.set-envs.outputs.BLUE_TARGET_GROUP }}
-      green_target_group_arn: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP }}
-      green_target_group: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP_ARN }}
+      green_target_group_arn: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP_ARN }}
+      green_target_group: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
