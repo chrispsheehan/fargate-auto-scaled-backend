@@ -30,6 +30,10 @@ variable "container_port" {
   type = number
 }
 
+variable "load_balancer_port" {
+  type = number
+}
+
 variable "task_definition_arn" {
   type = string
 }

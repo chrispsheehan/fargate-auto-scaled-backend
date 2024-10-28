@@ -4,7 +4,7 @@ module "ecs" {
   project_name         = var.project_name
   initial_task_count   = var.initial_task_count
   container_port       = var.container_port
-  load_balancer_port   = local.load_balancer_port
+  load_balancer_port   = var.load_balancer_port
   task_definition_arn  = var.task_definition_arn
   private_vpc_id       = local.private_vpc_id
   private_subnet_ids   = local.private_subnet_ids
