@@ -124,7 +124,7 @@ resource "aws_apigatewayv2_integration" "this" {
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.this.id
   integration_method = "ANY"
-  integration_uri    = var.load_balancer_listener_arn
+  integration_uri    = aws_lb_listener.listener.arn
 
   payload_format_version = "1.0"
 }

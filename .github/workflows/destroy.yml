@@ -103,8 +103,6 @@ jobs:
   network:
     runs-on: ubuntu-latest
     needs: service
-    env:
-      TF_VAR_load_balancer_listener_arn: "arn:aws:elasticloadbalancing:${{ vars.aws_region }}:123456789012:targetgroup/dummy-target-group/1234567890123456"
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
