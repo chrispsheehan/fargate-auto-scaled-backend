@@ -26,53 +26,17 @@ permissions:
   contents: read
 
 jobs:
-  service:
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_task_definition_arn: ${{ inputs.task_definition_arn }}
-    outputs:
-      cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
-      service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
-      lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ inputs.aws_region }}
-          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
-          role-session-name: GitHubActions
-
-      - name: Init
-        shell: bash
-        run: |
-          cd tf/service
-          terraform init
-    
-      - name: Deploy
-        shell: bash
-        id: deploy
-        run: |
-          cd tf/service
-          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
-
-      - name: Set env vars
-        id: set-envs
-        shell: bash
-        run: |
-          cd tf/service
-          LB_LISTENER_ARN=$(terraform output -raw lb_listener_arn)
-          echo "LB_LISTENER_ARN=$LB_LISTENER_ARN" >> $GITHUB_OUTPUT
-
   network:
-    needs: 
-      - service
     runs-on: ubuntu-latest
-    env:
-      TF_VAR_load_balancer_listener_arn: ${{ needs.service.outputs.lb_listener_arn }}
     outputs:
       api_invoke_url: ${{ steps.set-envs.outputs.API_INVOKE_URL }}
+      security_group_id: ${{ steps.set-envs.outputs.SECURITY_GROUP_ID }}
+      load_balancer_arn: ${{ steps.set-envs.outputs.LOAD_BALANCER_ARN }}
+      lb_listener_arn: ${{ steps.set-envs.outputs.LB_LISTENER_ARN }}
+      blue_target_group_arn: ${{ steps.set-envs.outputs.BLUE_TARGET_GROUP_ARN }}
+      blue_target_group: ${{ steps.set-envs.outputs.BLUE_TARGET_GROUP }}
+      green_target_group_arn: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP }}
+      green_target_group: ${{ steps.set-envs.outputs.GREEN_TARGET_GROUP_ARN }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
@@ -102,5 +66,65 @@ jobs:
         run: |
           cd tf/network
           API_INVOKE_URL=$(terraform output -raw api_invoke_url)
+          SECURITY_GROUP_ID=$(terraform output -raw security_group_id)
+          LOAD_BALANCER_ARN=$(terraform output -raw load_balancer_arn)
+          LB_LISTENER_ARN=$(terraform output -raw listener_arn)
+          BLUE_TARGET_GROUP_ARN=$(terraform output -raw blue_target_group_arn)
+          BLUE_TARGET_GROUP=$(terraform output -raw blue_target_group)
+          GREEN_TARGET_GROUP=$(terraform output -raw green_target_group)
+          GREEN_TARGET_GROUP_ARN=$(terraform output -raw green_target_group_arn)
           echo "API_INVOKE_URL=$API_INVOKE_URL" >> $GITHUB_OUTPUT
-        
+          echo "SECURITY_GROUP_ID=$SECURITY_GROUP_ID" >> $GITHUB_OUTPUT
+          echo "LOAD_BALANCER_ARN=$LOAD_BALANCER_ARN" >> $GITHUB_OUTPUT
+          echo "LB_LISTENER_ARN=$LB_LISTENER_ARN" >> $GITHUB_OUTPUT
+          echo "BLUE_TARGET_GROUP_ARN=$BLUE_TARGET_GROUP_ARN" >> $GITHUB_OUTPUT
+          echo "BLUE_TARGET_GROUP=$BLUE_TARGET_GROUP" >> $GITHUB_OUTPUT
+          echo "GREEN_TARGET_GROUP=$GREEN_TARGET_GROUP" >> $GITHUB_OUTPUT
+          echo "GREEN_TARGET_GROUP_ARN=$GREEN_TARGET_GROUP_ARN" >> $GITHUB_OUTPUT
+
+  service:
+    needs: network
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_task_definition_arn: ${{ inputs.task_definition_arn }}
+      TF_VAR_load_balancer_arn: ${{ needs.network.outputs.load_balancer_arn }}
+      TF_VAR_lb_listener_arn: ${{ needs.network.outputs.lb_listener_arn}}
+      TF_VAR_lb_blue_target_group: ${{ needs.network.outputs.blue_target_group }}
+      TF_VAR_lb_blue_target_group_arn: ${{ needs.network.outputs.blue_target_group_arn }}
+      TF_VAR_lb_green_target_group: ${{ needs.network.outputs.green_target_group }}
+      TF_VAR_lb_green_target_group_arn: ${{ needs.network.outputs.green_target_group_arn}}
+    outputs:
+      cluster_name: ${{ steps.set-envs.outputs.CLUSTER_NAME }}
+      service_name: ${{ steps.set-envs.outputs.SERVICE_NAME }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.aws_role }}
+          role-session-name: GitHubActions
+
+      - name: Init
+        shell: bash
+        run: |
+          cd tf/service
+          terraform init
+    
+      - name: Deploy
+        shell: bash
+        id: deploy
+        run: |
+          cd tf/service
+          terraform apply -auto-approve -var-file=${{ github.workspace }}/tf/variables.tfvars
+
+      - name: Set env vars
+        id: set-envs
+        shell: bash
+        run: |
+          cd tf/service
+          CLUSTER_NAME=$(terraform output -raw cluster_name)
+          SERVICE_NAME=$(terraform output -raw service_name)
+          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_OUTPUT

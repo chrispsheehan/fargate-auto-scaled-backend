@@ -2,6 +2,14 @@ variable "project_name" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
+variable "private_vpc_name" {
+  type = string
+}
+
 variable "codedeploy_deployment_config_name" {
   type = string
 }
@@ -18,19 +26,39 @@ variable "app_specs_bucket" {
   type = string
 }
 
-variable "region" {
-  type = string
-}
-
-variable "private_vpc_name" {
-  type = string
-}
-
 variable "container_port" {
   type = number
 }
 
 variable "task_definition_arn" {
+  type = string
+}
+
+variable "load_balancer_arn" {
+  type = string
+}
+
+variable "lb_listener_arn" {
+  type = string
+}
+
+variable "lb_blue_target_group" {
+  type = string
+}
+
+variable "lb_blue_target_group_arn" {
+  type = string
+}
+
+variable "lb_green_target_group" {
+  type = string
+}
+
+variable "lb_green_target_group_arn" {
+  type = string
+}
+
+variable "lb_security_group_id" {
   type = string
 }
 

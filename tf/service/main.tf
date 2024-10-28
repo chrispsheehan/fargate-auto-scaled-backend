@@ -8,20 +8,8 @@ module "ecs" {
   task_definition_arn  = var.task_definition_arn
   private_vpc_id       = local.private_vpc_id
   private_subnet_ids   = local.private_subnet_ids
-  lb_target_group_arn  = module.load_balancer.blue_target_group_arn
-  lb_security_group_id = module.load_balancer.security_group_id
-}
-
-module "load_balancer" {
-  source = "./load_balancer"
-
-  project_name           = var.project_name
-  container_port         = var.container_port
-  load_balancer_port     = local.load_balancer_port
-  private_vpc_id         = local.private_vpc_id
-  private_vpc_cidr_block = local.private_vpc_cidr_block
-  private_subnet_cidrs   = local.private_subnet_cidrs
-  private_subnet_ids     = local.private_subnet_ids
+  lb_target_group_arn  = var.lb_blue_target_group_arn
+  lb_security_group_id = var.lb_security_group_id
 }
 
 module "deploy" {
@@ -38,12 +26,12 @@ module "deploy" {
   cluster_name                         = module.ecs.cluster_name
   cluster_arn                          = module.ecs.cluster_arn
   service_name                         = module.ecs.service_name
-  load_balancer_arn                    = module.load_balancer.load_balancer_arn
-  lb_listener_arn                      = module.load_balancer.listener_arn
-  lb_blue_target_group                 = module.load_balancer.blue_target_group
-  lb_blue_target_group_arn             = module.load_balancer.blue_target_group_arn
-  lb_green_target_group                = module.load_balancer.green_target_group
-  lb_green_target_group_arn            = module.load_balancer.green_target_group_arn
+  load_balancer_arn                    = var.load_balancer_arn
+  lb_listener_arn                      = var.lb_listener_arn
+  lb_blue_target_group                 = var.lb_blue_target_group
+  lb_blue_target_group_arn             = var.lb_blue_target_group_arn
+  lb_green_target_group                = var.lb_green_target_group
+  lb_green_target_group_arn            = var.lb_green_target_group_arn
 }
 
 module "auto_scaling" {
