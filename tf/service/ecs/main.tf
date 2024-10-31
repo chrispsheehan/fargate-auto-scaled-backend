@@ -46,7 +46,7 @@ resource "aws_ecs_service" "ecs" {
   }
 
   # Health check grace period (in seconds) for the new tasks
-  health_check_grace_period_seconds = 15
+  health_check_grace_period_seconds = 10
 
   # Rolling deployment settings for ECS
   deployment_minimum_healthy_percent = 50  # 50% of tasks must remain healthy during deployment
