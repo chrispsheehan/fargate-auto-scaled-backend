@@ -4,6 +4,13 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ![Infrastructure](docs/infra.drawio.png)
 
+## vpc
+
+A VPC with the below resources is required. Console VPC wizard can create them.
+
+![VPC](docs/vpc.png)
+
+
 ## ci
 
 `Init` workflow - manual trigger
