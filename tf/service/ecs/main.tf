@@ -57,4 +57,11 @@ resource "aws_ecs_service" "ecs" {
 
   # Disable wait for steady state when using CodeDeploy
   wait_for_steady_state = false
+
+  lifecycle {
+    ignore_changes = [
+      load_balancer,
+      task_definition
+    ]
+  }
 }
