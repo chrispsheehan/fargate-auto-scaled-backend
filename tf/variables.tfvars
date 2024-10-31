@@ -6,4 +6,5 @@ region                            = "eu-west-2"
 private_vpc_name                  = "ecs-private-vpc"
 api_stage_name                    = "dev"
 container_port                    = 3000
+load_balancer_port                = 80
 codedeploy_deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"

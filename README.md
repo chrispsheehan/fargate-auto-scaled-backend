@@ -4,6 +4,13 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 ![Infrastructure](docs/infra.drawio.png)
 
+## vpc
+
+A VPC with the below resources is required. Console VPC wizard can create them.
+
+![VPC](docs/vpc.png)
+
+
 ## ci
 
 `Init` workflow - manual trigger
@@ -12,8 +19,8 @@ A load balanced and auto-scaled api running on AWS ECS.
 2. **ecr** Apply ECR and vpc endpoints.
 3. **build/image** `[if service doesn't exist]` Push a new *initial* image to ecr.
 4. **build/task** `[if service doesn't exist]` Create a new task definition is created.
-5. **setup/service** Apply ecs service, load balancer, deploy and auto-scaling.
-6. **setup/network** Apply vpc link and api gateway ingress.
+5. **setup/service** Apply ecs service, deploy and auto-scaling.
+6. **setup/network** Apply vpc link, load balancer and api gateway ingress.
 7. **test** Basic check on the API `/host` endpoint.
 
 `Deploy` workflow - push on `main` trigger
@@ -26,8 +33,8 @@ A load balanced and auto-scaled api running on AWS ECS.
 
 `Destroy` workflow - manual trigger
 
-1. **service** Destroy ecs service, load balancer, deploy and auto-scaling resources.
-2. **network** Destroy vpc link and api gateway ingress resources.
+1. **service** Destroy ecs service, deploy and auto-scaling resources.
+2. **network** Destroy vpc link, load balancer and api gateway ingress resources.
 3. **task** Destroy task definition.
 4. **ecr** Destroy ecr and images.
 

@@ -86,6 +86,8 @@ jobs:
     steps:
       - name: echo url
         run: echo url is ${{ needs.setup.outputs.api_invoke_url }}
+      - name: delay
+        run: sleep 300
       - name: Check if API returns 200
         run: |
           STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" ${{ needs.setup.outputs.api_invoke_url }}/host)
